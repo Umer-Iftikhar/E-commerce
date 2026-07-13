@@ -1,3 +1,4 @@
+
 CREATE OR ALTER PROCEDURE dbo.CheckEmailExists
     @Email VARCHAR(250)
 AS
