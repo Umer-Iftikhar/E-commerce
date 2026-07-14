@@ -1,0 +1,46 @@
+﻿using Dapper;
+using E_commerce.Constants;
+using E_commerce.Data;
+using E_commerce.DTOs.Request;
+using E_commerce.DTOs.Response;
+using E_commerce.Repositories.Interfaces;
+using System.Data;
+
+namespace E_commerce.Repositories.Implementations
+{
+    public class UserRepository : IUserRepository
+    {
+        private readonly DapperContext _context;
+
+        public UserRepository(DapperContext context)
+        {
+            _context = context;
+        }
+
+        public async Task<CreateUserResponseDto> CreateUserAsync(CreateUserRequestDto request)
+        {
+            using var connection = _context.CreateConnection();
+            var response = await connection.QuerySingleAsync<CreateUserResponseDto>(
+                StoredProcedures.CreateUser, 
+                new { 
+                    Email = request.Email,
+                    Name = request.Name,
+                    PasswordHash = request.PasswordHash
+                }, 
+                commandType: CommandType.StoredProcedure);
+
+            return response;
+        }
+
+        public async Task<ApiResponseDto> CheckEmailExistsAsync(string email)
+        {
+            using var connection = _context.CreateConnection();
+            var sql = await connection.QuerySingleAsync<ApiResponseDto>(
+                StoredProcedures.CheckEmailExists, 
+                new { Email = email }, 
+                commandType: CommandType.StoredProcedure);
+
+            return sql;
+        }
+    }
+}
