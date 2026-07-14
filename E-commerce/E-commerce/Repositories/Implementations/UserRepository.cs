@@ -3,6 +3,7 @@ using E_commerce.Constants;
 using E_commerce.Data;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
+using E_commerce.Models;
 using E_commerce.Repositories.Interfaces;
 using System.Data;
 
@@ -61,6 +62,25 @@ namespace E_commerce.Repositories.Implementations
                     request.FileSizeBytes
                 },
                 commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<User?> GetUserByIdAsync(int id)
+        {
+            using var connection = _context.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                StoredProcedures.GetUserById,
+                new { Id = id },
+                commandType: CommandType.StoredProcedure);
+
+            var response = await multi.ReadSingleAsync<ApiResponseDto>();
+
+            if (response.ResponseCode != 200)
+            {
+                return null;
+            }
+
+            return await multi.ReadSingleOrDefaultAsync<User>();
         }
     }
 }

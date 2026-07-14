@@ -1,6 +1,7 @@
 ﻿using E_commerce.Data;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
+using E_commerce.Models;
 
 namespace E_commerce.Repositories.Interfaces
 {
@@ -9,5 +10,6 @@ namespace E_commerce.Repositories.Interfaces
         Task<ApiResponseDto> CheckEmailExistsAsync(string email);
         Task<CreateUserResponseDto> CreateUserAsync(CreateUserRequestDto request);
         Task<ApiResponseDto> CreateUserAvatarAsync(CreateUserAvatarRequestDto request);
+        Task<User?> GetUserByIdAsync(int id);
     }
 }
