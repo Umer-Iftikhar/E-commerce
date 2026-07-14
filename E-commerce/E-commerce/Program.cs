@@ -1,4 +1,10 @@
+using Dapper;
+using E_commerce.Data;
+
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<DapperContext>();
+SqlMapper.AddTypeHandler(new UploadStatusTypeHandler());
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
