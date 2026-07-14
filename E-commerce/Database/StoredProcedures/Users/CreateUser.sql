@@ -36,7 +36,7 @@ BEGIN
         );
 
 
-        SET @UserId = SCOPE_IDENTITY();
+        SET @UserId = CAST(SCOPE_IDENTITY() AS INT);
 
 
         SELECT
