@@ -1,10 +1,15 @@
 using Dapper;
 using E_commerce.Data;
+using E_commerce.Repositories.Implementations;
+using E_commerce.Repositories.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
+SqlMapper.AddTypeHandler(new UploadStatusTypeHandler());
 
 builder.Services.AddSingleton<DapperContext>();
-SqlMapper.AddTypeHandler(new UploadStatusTypeHandler());
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IImageUploadAttemptRepository, ImageUploadAttemptRepository>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

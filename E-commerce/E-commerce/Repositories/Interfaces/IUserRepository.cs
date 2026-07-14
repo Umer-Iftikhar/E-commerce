@@ -8,5 +8,6 @@ namespace E_commerce.Repositories.Interfaces
     {
         Task<ApiResponseDto> CheckEmailExistsAsync(string email);
         Task<CreateUserResponseDto> CreateUserAsync(CreateUserRequestDto request);
+        Task<ApiResponseDto> CreateUserAvatarAsync(CreateUserAvatarRequestDto request);
     }
 }

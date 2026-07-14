@@ -42,5 +42,25 @@ namespace E_commerce.Repositories.Implementations
 
             return sql;
         }
+
+        public async Task<ApiResponseDto> CreateUserAvatarAsync(CreateUserAvatarRequestDto request)
+        {
+            using var connection = _context.CreateConnection();
+
+            return await connection.QuerySingleAsync<ApiResponseDto>(
+                StoredProcedures.CreateUserAvatar,
+                new
+                {
+                    request.UserId,
+                    request.OriginalFileName,
+                    request.StoredFileName,
+                    request.FileExtension,
+                    request.MimeType,
+                    request.Width,
+                    request.Height,
+                    request.FileSizeBytes
+                },
+                commandType: CommandType.StoredProcedure);
+        }
     }
 }
