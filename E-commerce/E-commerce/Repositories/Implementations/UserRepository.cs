@@ -53,7 +53,6 @@ namespace E_commerce.Repositories.Implementations
                 new
                 {
                     request.UserId,
-                    request.OriginalFileName,
                     request.StoredFileName,
                     request.FileExtension,
                     request.MimeType,

@@ -31,13 +31,9 @@ namespace E_commerce.Service.Implementations
         {
             var refreshToken = GenerateRefreshToken();
 
-            var expiresAt = DateTime.UtcNow.AddDays(
-                _jwtConfig.RefreshTokenExpiryDays);
+            var expiresAt = DateTime.UtcNow.AddDays(_jwtConfig.RefreshTokenExpiryDays);
 
-            var response = await _refreshTokenRepository.SaveRefreshTokenAsync(
-                userId,
-                refreshToken,
-                expiresAt);
+            var response = await _refreshTokenRepository.SaveRefreshTokenAsync(userId, refreshToken, expiresAt);
 
             if (response.ResponseCode != 200)
             {
@@ -78,8 +74,7 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
-            var revokeResponse =
-                await _refreshTokenRepository.RevokeRefreshTokenAsync(refreshToken);
+            var revokeResponse = await _refreshTokenRepository.RevokeRefreshTokenAsync(refreshToken);
 
             if (revokeResponse.ResponseCode != 200)
             {

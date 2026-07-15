@@ -4,7 +4,7 @@ namespace E_commerce.Service.Interfaces
 {
     public interface IRefreshTokenService
     {
-        Task<string> GenerateAndSaveAsync(int userId);
-        Task<RefreshResponseDto?> RefreshAsync(string refreshToken);
+        Task<string?> GenerateAndSaveAsync(int userId);
+        Task<RefreshResponseDto> RefreshAsync(string refreshToken);
     }
 }

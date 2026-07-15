@@ -1,8 +1,7 @@
-﻿namespace E_commerce.DTOs.Request
+﻿namespace E_commerce.DTOs.Response
 {
-    public class CreateUserAvatarRequestDto
+    public class MoveImageResponseDto : ApiResponseDto
     {
-        public int UserId { get; set; }
         public string StoredFileName { get; set; } = string.Empty;
         public string FileExtension { get; set; } = string.Empty;
         public string MimeType { get; set; } = string.Empty;

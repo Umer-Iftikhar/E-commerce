@@ -28,7 +28,7 @@ namespace E_commerce.Repositories.Implementations
                     request.TempFileName,
                     request.ExpiresAt
                 },
-                commandType: System.Data.CommandType.StoredProcedure
+                commandType: CommandType.StoredProcedure
             );
         }
 
