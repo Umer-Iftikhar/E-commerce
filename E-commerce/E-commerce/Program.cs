@@ -1,5 +1,7 @@
 using Dapper;
+using E_commerce.Constants;
 using E_commerce.Data;
+using E_commerce.Middlewares;
 using E_commerce.Repositories.Implementations;
 using E_commerce.Repositories.Interfaces;
 using E_commerce.Service.Implementations;
@@ -28,6 +30,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
 
 
 var jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtConfig>()!;
@@ -51,6 +54,25 @@ builder.Services
 
             ClockSkew = TimeSpan.Zero
         };
+
+        options.Events = new JwtBearerEvents
+        {
+            OnMessageReceived = context =>
+            {
+                if (context.HttpContext.Items.TryGetValue(CookieConstants.AccessToken, out var token))
+                {
+                    context.Token = token as string;
+                }
+                else if (context.Request.Cookies.TryGetValue(
+                             CookieConstants.AccessToken,
+                             out var cookieToken))
+                {
+                    context.Token = cookieToken;
+                }
+
+                return Task.CompletedTask;
+            }
+        };
     });
 
 builder.Services.AddAuthorization();
@@ -71,6 +93,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseMiddleware<RefreshTokenMiddleware>();
+
 
 app.UseAuthentication();
 app.UseAuthorization();
