@@ -6,5 +6,6 @@ namespace E_commerce.Service.Interfaces
     {
         Task<string?> GenerateAndSaveAsync(int userId);
         Task<RefreshResponseDto> RefreshAsync(string refreshToken);
+        Task<ApiResponseDto> RevokeAsync(string refreshToken);
     }
 }

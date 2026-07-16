@@ -1,22 +1,34 @@
 CREATE OR ALTER PROCEDURE dbo.CreateUserAvatar
 (
     @UserId INT,
-    @OriginalFileName VARCHAR(255),
     @StoredFileName VARCHAR(255),
     @FileExtension VARCHAR(20),
     @MimeType VARCHAR(100),
     @Width INT,
     @Height INT,
-    @FileSizeBytes BIGINT
+    @FileSizeBytes INT
 )
 AS
 BEGIN
     SET NOCOUNT ON;
     BEGIN TRY
+        IF NOT EXISTS
+        (
+            SELECT 1
+            FROM dbo.Users
+            WHERE Id = @UserId
+              AND IsActive = 1
+              AND IsDeleted = 0
+        )
+        BEGIN
+            SELECT
+                404 AS ResponseCode,
+                'User Not Found' AS ResponseMessage;
+            RETURN;
+        END
         INSERT INTO dbo.UserAvatars
         (
             UserId,
-            OriginalFileName,
             StoredFileName,
             FileExtension,
             MimeType,
@@ -27,7 +39,6 @@ BEGIN
         VALUES
         (
             @UserId,
-            @OriginalFileName,
             @StoredFileName,
             @FileExtension,
             @MimeType,
@@ -41,15 +52,15 @@ BEGIN
     END TRY
     BEGIN CATCH
         IF ERROR_NUMBER() IN (2601, 2627)
-        BEGIN
+            BEGIN
+                SELECT
+                    409 AS ResponseCode,
+                    'User Already Has An Avatar' AS ResponseMessage;
+                    RETURN;
+            END
             SELECT
-                409 AS ResponseCode,
-                'User Already Has A Profile Image' AS ResponseMessage;
-            RETURN;
-        END
-        SELECT
-            500 AS ResponseCode,
-            ERROR_MESSAGE() AS ResponseMessage;
+                500 AS ResponseCode,
+                ERROR_MESSAGE() AS ResponseMessage;
     END CATCH
 END
 GO

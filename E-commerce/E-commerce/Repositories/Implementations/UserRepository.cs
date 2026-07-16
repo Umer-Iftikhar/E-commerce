@@ -81,5 +81,24 @@ namespace E_commerce.Repositories.Implementations
 
             return await multi.ReadSingleOrDefaultAsync<User>();
         }
+
+        public async Task<User?> GetUserByEmailAsync(string email)
+        {
+            using var connection = _context.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                StoredProcedures.GetUserByEmail,    
+                new { Email = email },
+                commandType: CommandType.StoredProcedure);
+
+            var response = await multi.ReadSingleAsync<ApiResponseDto>();
+
+            if (response.ResponseCode != 200)
+            {
+                return null;
+            }
+
+            return await multi.ReadSingleOrDefaultAsync<User>();
+        }
     }
 }

@@ -16,15 +16,20 @@ SqlMapper.AddTypeHandler(new UploadStatusTypeHandler());
 
 builder.Services.AddSingleton<DapperContext>();
 
+builder.Services.Configure<ImageStorageSettings>(builder.Configuration.GetSection("ImageStorage"));
+builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("Jwt"));
+
 builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<ImageUploadAttemptRepository, ImageUploadAttemptRepository>();
+builder.Services.AddScoped<IImageUploadAttemptRepository, ImageUploadAttemptRepository>();
 builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IImageService, ImageService>();
+builder.Services.AddScoped<IUserService, UserService>();
 
-builder.Services.Configure<ImageStorageSettings>(builder.Configuration.GetSection("ImageStorage"));
+
 var jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtConfig>()!;
 
 builder.Services

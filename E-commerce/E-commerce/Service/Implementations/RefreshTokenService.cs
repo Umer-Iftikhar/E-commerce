@@ -130,5 +130,30 @@ namespace E_commerce.Service.Implementations
             var bytes = RandomNumberGenerator.GetBytes(64);
             return Convert.ToBase64String(bytes);
         }
+
+        public async Task<ApiResponseDto> RevokeAsync(string refreshToken)
+        {
+            var token = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
+
+            if (token is null)
+            {
+                return new ApiResponseDto
+                {
+                    ResponseCode = 404,
+                    ResponseMessage = "Refresh token not found."
+                };
+            }
+
+            if (token.IsRevoked)
+            {
+                return new ApiResponseDto
+                {
+                    ResponseCode = 200,
+                    ResponseMessage = "Refresh token already revoked."
+                };
+            }
+
+            return await _refreshTokenRepository.RevokeRefreshTokenAsync(refreshToken);
+        }
     }
 }
