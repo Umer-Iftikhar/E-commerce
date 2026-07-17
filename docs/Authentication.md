@@ -9,6 +9,8 @@ Authentication uses:
 
 The MVC application authenticates users through cookies while internally using JWT authentication.
 
+*Access tokens are stored inside HTTP-only cookies rather than browser storage. This protects tokens from JavaScript access while still allowing the application to authenticate using the JWT Bearer authentication handler.*
+
 ---
 
 ## Authentication Flow
@@ -46,7 +48,9 @@ Every incoming request passes through `RefreshTokenMiddleware`. This middleware 
         *   Update Cookies.
         *   Continue Request.
 
-*If a new access token is generated, it is stored in `HttpContext.Items`. The JWT authentication handler first checks `HttpContext.Items` before reading cookies, allowing the refreshed token to authenticate the current request.*
+*If the middleware refreshes an expired access token, the newly generated token is written to both the response cookie and HttpContext.Items.*
+
+*The response cookie is not available until the browser sends the next request, so the JWT authentication handler first checks HttpContext.Items. This allows the current request to authenticate using the refreshed token without requiring another round trip.*
 
 ---
 
@@ -63,7 +67,7 @@ Two cookies are used, and the client never interacts with either:
 ## Refresh Token Rotation
 Every refresh operation:
 1.  Validates the refresh token.
-2.  Revokes the old token.
+2.  Revokes the previous refresh token before issuing a replacement.
 3.  Generates a new refresh token.
 4.  Generates a new access token.
 5.  Stores the new refresh token.
@@ -74,7 +78,7 @@ Every refresh operation:
 ---
 
 ## Image Upload Pipeline
-The image upload is separated from registration.
+Image upload is intentionally separated from registration because a profile image must be validated and stored before a user account exists. An `UploadToken` links the temporary upload to the later registration request.
 
 1.  Choose Image
 2.  `UploadImage()`
@@ -88,7 +92,7 @@ The image upload is separated from registration.
 
 ---
 
-## MVC Architecture
+## Application Architecture
 The MVC layer communicates only through `ViewModels`.
 
 ### Communication Path
@@ -110,6 +114,10 @@ The MVC layer communicates only through `ViewModels`.
 *   `RefreshTokenRepository`
 *   `ImageUploadAttemptRepository`
 *(Repositories contain only data-access logic.)*
+
+### RefreshTokenMiddleware
+*    - Automatically refreshes expired access tokens.
+*    - Executes before authentication.
 
 ---
 
