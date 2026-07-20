@@ -64,6 +64,30 @@ Stores refresh tokens used for JWT authentication.
 *   Support user logout.
 *   Each refresh token belongs to exactly one user.
 
+### Roles
+Stores the application's available roles.
+
+#### Responsibilities
+* Define the roles that can be assigned to users.
+* Support role-based authorization.
+
+#### Notes
+* Roles are seeded during database initialization.
+* Current roles:
+    * Customer
+    * Admin
+
+### UserRoles
+Associates users with roles.
+
+#### Responsibilities
+* Assign a role to each user.
+* Support authorization through JWT role claims.
+
+#### Notes
+* The current application supports one role per user.
+* The schema can be expanded later to support multiple roles without modifying the Users table.
+
 ---
 
 ## Registration Architecture
@@ -88,9 +112,10 @@ The application:
 1.  Validates the `UploadToken`.
 2.  Retrieves the pending upload attempt.
 3.  Creates the user.
-4.  Moves the image into permanent storage.
-5.  Creates avatar metadata.
-6.  Marks the upload as `Completed`.
+4. Assigns the Customer role.
+5.  Moves the image into permanent storage.
+6.  Creates avatar metadata.
+7.  Marks the upload as `Completed`.
 
 *   If registration fails before database persistence, no user is created.
 *   If database persistence fails after the image has been moved, compensating cleanup removes the moved file.

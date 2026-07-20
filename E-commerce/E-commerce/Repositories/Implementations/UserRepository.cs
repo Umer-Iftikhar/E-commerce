@@ -100,5 +100,17 @@ namespace E_commerce.Repositories.Implementations
 
             return await multi.ReadSingleOrDefaultAsync<User>();
         }
+        public async Task<ApiResponseDto> AssignRoleToUserAsync(int userId, string roleName)
+        {
+            using var connection = _context.CreateConnection(); 
+            return await connection.QuerySingleAsync<ApiResponseDto>(
+                StoredProcedures.AssignRoleToUser, 
+                new
+                {
+                    UserId = userId, 
+                    RoleName = roleName 
+                }, 
+                commandType: CommandType.StoredProcedure); 
+        }
     }
 }

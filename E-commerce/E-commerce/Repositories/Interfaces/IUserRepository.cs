@@ -12,5 +12,6 @@ namespace E_commerce.Repositories.Interfaces
         Task<ApiResponseDto> CreateUserAvatarAsync(CreateUserAvatarRequestDto request);
         Task<User?> GetUserByIdAsync(int id);
         Task<User?> GetUserByEmailAsync(string email);
+        Task<ApiResponseDto> AssignRoleToUserAsync(int userId, string roleName);
     }
 }

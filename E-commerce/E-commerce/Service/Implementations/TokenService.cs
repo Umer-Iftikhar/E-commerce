@@ -21,16 +21,14 @@ namespace E_commerce.Service.Implementations
         public string GenerateToken(TokenClaimsDto user)
         {
             var claims = new List<Claim>
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.Name, user.Name),
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Name, user.Name),
+                new Claim(ClaimTypes.Role, user.Role ?? string.Empty),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+            };
 
-            // Reserved for future authorization
-            // new Claim(ClaimTypes.Role, user.Role),
-
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
 
             var key = new SymmetricSecurityKey(
                 Encoding.UTF8.GetBytes(_jwtConfig.SecretKey));

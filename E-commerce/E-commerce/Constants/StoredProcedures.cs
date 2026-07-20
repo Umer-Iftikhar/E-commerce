@@ -7,6 +7,7 @@
         public const string CreateUser = "dbo.CreateUser";
         public const string GetUserByEmail = "dbo.GetUserByEmail";
         public const string GetUserById = "dbo.GetUserById";
+        public const string AssignRoleToUser = "AssignRoleToUser";
 
 
         // User Avatars

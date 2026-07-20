@@ -1,4 +1,5 @@
-﻿using E_commerce.DTOs.Internal;
+﻿using E_commerce.Constants;
+using E_commerce.DTOs.Internal;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
 using E_commerce.Repositories.Interfaces;
@@ -31,7 +32,9 @@ namespace E_commerce.Service.Implementations
 
         public async Task<AuthenticationResponseDto> LoginAsync(LoginRequestDto request)
         {
+            // 1. Retrieve user by email
             var user = await _userRepository.GetUserByEmailAsync(request.Email);
+
             if (user is null)
             {
                 return new AuthenticationResponseDto
@@ -41,6 +44,7 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
+            // 2. Verify password
             var isPasswordValid = BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash);
 
             if (!isPasswordValid)
@@ -52,6 +56,7 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
+            // 3. Ensure account is active
             if (!user.IsActive || user.IsDeleted)
             {
                 return new AuthenticationResponseDto
@@ -61,16 +66,29 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
+            if (string.IsNullOrWhiteSpace(user.Role))
+            {
+                return new AuthenticationResponseDto
+                {
+                    ResponseCode = 500,
+                    ResponseMessage = "User account has no assigned role."
+                };
+            }
+
+            // 4. Generate access token
             var claims = new TokenClaimsDto
             {
                 Id = user.Id,
                 Name = user.Name,
-                Email = user.Email
+                Email = user.Email,
+                Role = user.Role
             };
 
             var accessToken = _tokenService.GenerateToken(claims);
 
+            // 5. Generate and save refresh token
             var refreshToken = await _refreshTokenService.GenerateAndSaveAsync(user.Id);
+
             if (refreshToken is null)
             {
                 return new AuthenticationResponseDto
@@ -80,13 +98,16 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
+            // 6. Return authentication response
             return new AuthenticationResponseDto
             {
                 ResponseCode = 200,
                 ResponseMessage = "User logged in successfully.",
+
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
+
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
@@ -132,7 +153,8 @@ namespace E_commerce.Service.Implementations
             }
 
             // 2. Validate upload token
-            var uploadAttemptResponse = await _imageUploadAttemptRepository.GetUploadAttemptByTokenAsync(request.UploadToken);
+            var uploadAttemptResponse =
+                await _imageUploadAttemptRepository.GetUploadAttemptByTokenAsync(request.UploadToken);
 
             if (uploadAttemptResponse.ResponseCode != 200)
             {
@@ -143,10 +165,9 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
-            var tempFileName = uploadAttemptResponse.Upload!.TempFileName;
-
-            // 3. Move image
-            var imageResponse = await _imageService.MoveToPermanentStorageAsync(uploadAttemptResponse.Upload!.TempFileName);
+            // 3. Move image from temporary storage to permanent storage
+            var imageResponse =
+                await _imageService.MoveToPermanentStorageAsync(uploadAttemptResponse.Upload!.TempFileName);
 
             if (imageResponse.ResponseCode != 200)
             {
@@ -171,10 +192,10 @@ namespace E_commerce.Service.Implementations
 
             if (createUserResponse.ResponseCode != 200)
             {
-                // Compensation (v1)
-                // Image was already moved but user creation failed.
-                // Delete the moved image if you implement DeleteImageAsync().
-                // await _imageService.DeleteImageAsync(imageResponse.StoredFileName);
+                // NOTE (v1):
+                // DEFERRED: Image has already been moved to permanent storage.
+                // Future work: implement DeletePermanentImageAsync() so the moved
+                // image can be removed if user creation fails.
 
                 return new AuthenticationResponseDto
                 {
@@ -183,7 +204,26 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
-            // 6. Create avatar
+            // 6. Assign default Customer role
+            var roleResponse = await _userRepository.AssignRoleToUserAsync(
+                createUserResponse.UserId,
+                Roles.Customer);
+
+            if (roleResponse.ResponseCode != 200)
+            {
+                // NOTE (v1):
+                // DEFERRED: User has been created but no role was assigned.
+                // Future work: implement compensating actions to remove the user
+                // if role assignment fails.
+
+                return new AuthenticationResponseDto
+                {
+                    ResponseCode = roleResponse.ResponseCode,
+                    ResponseMessage = roleResponse.ResponseMessage
+                };
+            }
+
+            // 7. Create avatar metadata
             var avatarResponse = await _userRepository.CreateUserAvatarAsync(
                 new CreateUserAvatarRequestDto
                 {
@@ -199,10 +239,9 @@ namespace E_commerce.Service.Implementations
             if (avatarResponse.ResponseCode != 200)
             {
                 // NOTE (v1):
-                // DEFERRED: If CreateUserAvatar fails after CreateUser succeeds,
-                // the user record and moved image become orphaned.
-                // Future work: implement soft-delete user + DeletePermanentImageAsync
-                // to clean up on avatar creation failure..
+                // DEFERRED: User, role and image already exist.
+                // Future work: remove user, role assignment and permanent image
+                // if avatar creation fails.
 
                 return new AuthenticationResponseDto
                 {
@@ -211,15 +250,15 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
-            // 7. Mark upload completed
-            var uploadCompleteResponse = await _imageUploadAttemptRepository.MarkUploadCompletedAsync(request.UploadToken);
+            // 8. Mark upload attempt as completed
+            var uploadCompleteResponse =
+                await _imageUploadAttemptRepository.MarkUploadCompletedAsync(request.UploadToken);
 
             if (uploadCompleteResponse.ResponseCode != 200)
             {
                 // NOTE (v1):
-                // DEFERRED: If MarkUploadCompleted fails, user and avatar exist
-                // but upload attempt remains Pending. Cleanup service will
-                // eventually expire it. No action needed here.
+                // DEFERRED: User, role and avatar already exist.
+                // Upload attempt will eventually be handled by the cleanup service.
 
                 return new AuthenticationResponseDto
                 {
@@ -228,18 +267,20 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
-            // 8. Generate access token
+            // 9. Generate access token
             var claims = new TokenClaimsDto
             {
                 Id = createUserResponse.UserId,
                 Name = request.Name,
-                Email = request.Email
+                Email = request.Email,
+                Role = Roles.Customer
             };
 
             var accessToken = _tokenService.GenerateToken(claims);
 
-            // 9. Generate refresh token
-            var refreshToken = await _refreshTokenService.GenerateAndSaveAsync(createUserResponse.UserId);
+            // 10. Generate and save refresh token
+            var refreshToken =
+                await _refreshTokenService.GenerateAndSaveAsync(createUserResponse.UserId);
 
             if (refreshToken is null)
             {
@@ -250,7 +291,7 @@ namespace E_commerce.Service.Implementations
                 };
             }
 
-            // 10. Return authentication response
+            // 11. Return authentication response
             return new AuthenticationResponseDto
             {
                 ResponseCode = 200,
@@ -264,7 +305,6 @@ namespace E_commerce.Service.Implementations
                 RefreshToken = refreshToken
             };
         }
-
         public Task<RefreshResponseDto> RefreshAsync(string refreshToken)
         {
             return _refreshTokenService.RefreshAsync(refreshToken);

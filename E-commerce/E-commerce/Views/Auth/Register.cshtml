@@ -4,61 +4,69 @@
     ViewData["Title"] = "Register";
 }
 
-<h2>@ViewData["Title"]</h2>
-
-<form asp-action="Register" method="post" enctype="multipart/form-data">
-    
-    @Html.AntiForgeryToken()
-
-    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-
-    <input asp-for="UploadToken" type="hidden" id="uploadToken" />
-    <span asp-validation-for="UploadToken" class="text-danger"></span>
-
-    <div class="form-group mb-3">
-        <label asp-for="Image" class="form-label"></label>
-        <input asp-for="Image" class="form-control" id="imageInput" accept=".jpg,.jpeg,.png"/>
-        <span asp-validation-for="Image" class="text-danger"></span>
-    </div>
-
-    <div id="imageInfo" class="border rounded p-3 mb-3" style="display:none">
-        <p><strong>Format:</strong> <span id="imageFormat"></span>-</p>
-        <p><strong>Resolution:</strong> <span id="imageResolution">-</span></p>
-        <p><strong>Size:</strong> <span id="imageSize">-</span></p>
-    </div>
+<div class="auth-container">
+    <div class="auth-card">
+        <h2 class="auth-title">@ViewData["Title"]</h2>
         
-    <div class="form-group mb-3">
-        <label asp-for="Name"></label>
-        <input asp-for="Name" class="form-control" />
-        <span asp-validation-for="Name" class="text-danger"></span>
+        <form asp-action="Register" method="post" enctype="multipart/form-data">
+            @Html.AntiForgeryToken()
+
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                @if (TempData["ErrorMessage"] is string errorMessage)
+                {
+                    <div class="alert alert-danger">
+                        @errorMessage
+                    </div>
+                }
+
+                <input asp-for="UploadToken" type="hidden" id="uploadToken" />
+                <span asp-validation-for="UploadToken" class="text-danger"></span>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Image" class="form-label"></label>
+                    <input asp-for="Image" class="form-control" id="imageInput" accept=".jpg,.jpeg,.png"/>
+                    <span asp-validation-for="Image" class="text-danger"></span>
+                </div>
+
+                <div id="imageInfo" class="border rounded p-3 mb-3" style="display:none">
+                    <p><strong>Format:</strong> <span id="imageFormat">-</span></p>
+                    <p><strong>Resolution:</strong> <span id="imageResolution">-</span></p>
+                    <p><strong>Size:</strong> <span id="imageSize">-</span></p>
+                </div>
+        
+                <div class="form-group mb-3">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="Password"></label>
+                    <input asp-for="Password" type="password" class="form-control" />
+                    <span asp-validation-for="Password" class="text-danger"></span>
+                </div>
+
+                <div class="form-group mb-3">
+                    <label asp-for="ConfirmPassword"></label>
+                    <input asp-for="ConfirmPassword" type="password" class="form-control" />
+                    <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+                </div>
+
+                <button id="registerButton" class="btn btn-primary auth-button" type="submit">Register</button>
+
+        </form>
+        <div class="auth-footer">
+            <span>Already have an account?</span>
+            <a asp-action="Login">Login</a>
+        </div>
     </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="Email"></label>
-        <input asp-for="Email" class="form-control" />
-        <span asp-validation-for="Email" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="Password"></label>
-        <input asp-for="Password" class="form-control" />
-        <span asp-validation-for="Password" class="text-danger"></span>
-    </div>
-
-    <div class="form-group mb-3">
-        <label asp-for="ConfirmPassword"></label>
-        <input asp-for="ConfirmPassword" class="form-control" />
-        <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
-    </div>
-
-    <button id="registerButton" class="btn btn-primary" type="submit">Register</button>
-
-    <div class="mt-3">
-        <span>Already have an account?</span>
-        <a asp-action="Login">Login</a>
-    </div>
-
-</form>
+</div>
 
 @section Scripts
 {

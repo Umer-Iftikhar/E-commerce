@@ -9,5 +9,7 @@
         public bool IsActive { get; set; }
         public bool IsDeleted { get; set; }
         public DateTime CreatedAt { get; set; }
+        public int? RoleId { get; set; }
+        public string? Role { get; set; }
     }
 }
