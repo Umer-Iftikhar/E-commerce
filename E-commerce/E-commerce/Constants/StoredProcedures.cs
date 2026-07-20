@@ -27,5 +27,19 @@
         public const string GetRefreshToken = "dbo.GetRefreshToken";
         public const string RevokeRefreshToken = "dbo.RevokeRefreshToken";
         public const string RevokeAllUserTokens = "dbo.RevokeAllUserTokens";
+
+
+        // Categories
+        public const string CreateCategory = "dbo.CreateCategory";
+
+
+        // Products
+        public const string CreateProduct = "dbo.CreateProduct";
+        public const string AddProductImage = "dbo.AddProductImage";
+        public const string UpdateProduct = "dbo.UpdateProduct";
+        public const string SoftDeleteProduct = "dbo.SoftDeleteProduct";
+        public const string GetAllProducts = "dbo.GetAllProducts";
+        public const string GetProductById = "dbo.GetProductById";
+        public const string GetProductsByCategory = "dbo.GetProductsByCategory";
     }
 }
