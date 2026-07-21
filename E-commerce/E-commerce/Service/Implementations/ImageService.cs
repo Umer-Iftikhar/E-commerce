@@ -1,105 +1,70 @@
-﻿
-using E_commerce.DTOs.Response;
-using E_commerce.Helpers;
+﻿using E_commerce.DTOs.Response;
 using E_commerce.Services.Interfaces;
 using E_commerce.Settings;
-using SixLabors.ImageSharp;
 using Microsoft.Extensions.Options;
+using static System.Net.Mime.MediaTypeNames;
 
-    namespace E_commerce.Services.Implementations
+namespace E_commerce.Services.Implementations
+{
+    public class ImageService : IImageService
     {
-        public class ImageService : IImageService
+        private readonly IWebHostEnvironment _environment;
+        private readonly ImageStorageSettings _imageStorageSettings;
+
+        public ImageService(
+            IWebHostEnvironment environment,
+            IOptions<ImageStorageSettings> imageStorageSettings)
         {
-            private readonly IWebHostEnvironment _env;
-            private readonly ImageStorageSettings _settings;
+            _environment = environment;
+            _imageStorageSettings = imageStorageSettings.Value;
+        }
 
-            public ImageService(
-                IWebHostEnvironment env,
-                IOptions<ImageStorageSettings> options)
+        public async Task<UploadImageResponseDto> SaveAvatarAsync(IFormFile image)
+        {
+            //var maxSize = _imageStorageSettings.MaxFileSizeBytes;
+            //var fileSize = image.Length;
+
+            var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
+
+            if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
             {
-                _env = env;
-                _settings = options.Value;
+                return new UploadImageResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = "Invalid image format"
+                };
             }
 
-            public async Task<MoveImageResponseDto> MoveToPermanentStorageAsync(string tempFileName)
+            if (image.Length > _imageStorageSettings.MaxFileSizeBytes)
             {
-                string? permanentFilePath = null;   
-                try
+                return new UploadImageResponseDto
                 {
-                    var extension = ImageHelper.GetExtension(tempFileName);
-
-                    if (!ImageHelper.IsSupportedExtension(extension))
-                    {
-                        return new MoveImageResponseDto
-                        {
-                            ResponseCode = 400,
-                            ResponseMessage = "Unsupported image type."
-                        };
-                    }
-
-                    var tempFilePath = Path.Combine(_env.WebRootPath, _settings.TempFolder, tempFileName);
-
-                    if (!File.Exists(tempFilePath))
-                    {
-                        return new MoveImageResponseDto
-                        {
-                            ResponseCode = 404,
-                            ResponseMessage = "Temporary image not found."
-                        };
-                    }
-
-                    var storedFileName = ImageHelper.GenerateStoredFileName(extension);
-
-                    var avatarsFolder = Path.Combine(
-                        _env.WebRootPath,
-                        _settings.AvatarsFolder);
-
-                    Directory.CreateDirectory(avatarsFolder);
-
-                    permanentFilePath = Path.Combine(avatarsFolder, storedFileName);
-
-                    File.Move(tempFilePath, permanentFilePath);
-
-                    var imageInfo = await Image.IdentifyAsync(permanentFilePath);
-
-                    if (imageInfo is null)
-                    {
-                        File.Delete(permanentFilePath);
-                        return new MoveImageResponseDto
-                        {
-                            ResponseCode = 500,
-                            ResponseMessage = "Unable to read image metadata."
-                        };
-                    }
-
-                    var fileInfo = new FileInfo(permanentFilePath);
-
-                    return new MoveImageResponseDto
-                    {
-                        ResponseCode = 200,
-                        ResponseMessage = "Image moved successfully.",
-                        StoredFileName = storedFileName,
-                        FileExtension = extension,
-                        MimeType = ImageHelper.GetMimeType(extension),
-                        Width = imageInfo.Width,
-                        Height = imageInfo.Height,
-                        FileSizeBytes = (int)fileInfo.Length
-                    };
-                }
-                catch (Exception ex)
-                {
-
-                    if (!string.IsNullOrWhiteSpace(permanentFilePath) && File.Exists(permanentFilePath))
-                    {
-                        File.Delete(permanentFilePath);
-                    }
-                    return new MoveImageResponseDto
-                    {
-                        ResponseCode = 500,
-                        ResponseMessage = ex.Message
-                    };
-                }
+                    ResponseCode = 400,
+                    ResponseMessage = "Image size exceeds limit"
+                };
             }
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+
+            var folderPath = Path.Combine(_environment.WebRootPath, _imageStorageSettings.AvatarsFolder);
+
+            Directory.CreateDirectory(folderPath);
+
+            var filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+
+            var relativePath = Path.Combine(_imageStorageSettings.AvatarsFolder,fileName).Replace("\\", "/");
+
+            return new UploadImageResponseDto
+            {
+                ResponseCode = 200,
+                ResponseMessage = "Image Saved Successfully",
+                FilePath = relativePath
+            };
         }
     }
-
+}

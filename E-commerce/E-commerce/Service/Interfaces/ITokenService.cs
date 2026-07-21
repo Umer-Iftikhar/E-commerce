@@ -1,4 +1,5 @@
-﻿using E_commerce.DTOs.Internal;
+﻿
+using E_commerce.DTOs;
 
 namespace E_commerce.Service.Interfaces
 {

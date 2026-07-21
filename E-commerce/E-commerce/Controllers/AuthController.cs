@@ -19,7 +19,7 @@ namespace E_commerce.Controllers
             _jwtConfig = options.Value;
         }
 
-        private void SetAuthenticationCookies(AuthenticationResponseDto response)
+        private void SetAuthenticationCookies(LoginResponseDto response)
         {
             Response.Cookies.Append(CookieConstants.AccessToken, response.AccessToken!, new CookieOptions
             {
@@ -53,19 +53,13 @@ namespace E_commerce.Controllers
             {
                 return View(model);
             }
-            if (model.UploadToken == Guid.Empty)
-            {
-                ModelState.AddModelError(nameof(model.UploadToken),"Please upload an image.");
-
-                return View(model);
-            }
 
             var request = new RegisterRequestDto
             {
                 Name = model.Name,
                 Email = model.Email,
                 Password = model.Password,
-                UploadToken = model.UploadToken
+                ProfileImage = model.ProfileImage
             };
 
             var response = await _userService.RegisterAsync(request);
@@ -131,15 +125,15 @@ namespace E_commerce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Logout()
         {
-            var refreshToken = Request.Cookies["RefreshToken"];
+            var refreshToken = Request.Cookies[CookieConstants.RefreshToken];
 
             if (!string.IsNullOrWhiteSpace(refreshToken))
             {
                 await _userService.LogoutAsync(refreshToken);
             }
 
-            Response.Cookies.Delete("AccessToken");
-            Response.Cookies.Delete("RefreshToken");
+            Response.Cookies.Delete(CookieConstants.AccessToken);
+            Response.Cookies.Delete(CookieConstants.RefreshToken);
 
             return RedirectToAction(nameof(Login));
         }

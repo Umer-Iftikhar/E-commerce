@@ -2,8 +2,6 @@ using Dapper;
 using E_commerce.Constants;
 using E_commerce.Data;
 using E_commerce.Middlewares;
-using E_commerce.Repositories.Implementations;
-using E_commerce.Repositories.Interfaces;
 using E_commerce.Service.Implementations;
 using E_commerce.Service.Interfaces;
 using E_commerce.Services.Implementations;
@@ -14,23 +12,23 @@ using Microsoft.IdentityModel.Tokens;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
-SqlMapper.AddTypeHandler(new UploadStatusTypeHandler());
 
 builder.Services.AddSingleton<DapperContext>();
 
 builder.Services.Configure<ImageStorageSettings>(builder.Configuration.GetSection("ImageStorage"));
+var testSettings = builder.Configuration.GetSection("ImageStorage").Get<ImageStorageSettings>();
+
+
 builder.Services.Configure<JwtConfig>(builder.Configuration.GetSection("Jwt"));
-
-builder.Services.AddScoped<IUserRepository, UserRepository>();
-builder.Services.AddScoped<IImageUploadAttemptRepository, ImageUploadAttemptRepository>();
-builder.Services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
-
 
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddScoped<IRefreshTokenService, RefreshTokenService>();
 builder.Services.AddScoped<IImageService, ImageService>();
 builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<IImageUploadService, ImageUploadService>();
+
+
+//builder.Services.AddScoped<IProductRepository, ProductRepository>();
+//builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 
 
 var jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtConfig>()!;
@@ -102,6 +100,6 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+    pattern: "{controller=Auth}/{action=Login}/{id?}");
 
 app.Run();

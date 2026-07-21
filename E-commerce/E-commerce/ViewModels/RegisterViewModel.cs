@@ -23,11 +23,6 @@ namespace E_commerce.ViewModels
         [Compare(nameof(Password), ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; } = string.Empty;
 
-        // Populated after successful temp image upload
-        [Required(ErrorMessage = "Please upload an image.")]
-        public Guid UploadToken { get; set; }
-
-        // Used only during registration UI
-        public IFormFile? Image { get; set; }
+        public IFormFile? ProfileImage { get; set; }
     }
 }

@@ -1,4 +1,4 @@
-﻿using E_commerce.DTOs.Internal;
+﻿using E_commerce.DTOs;
 using E_commerce.Service.Interfaces;
 using E_commerce.Settings;
 using Microsoft.Extensions.Options;

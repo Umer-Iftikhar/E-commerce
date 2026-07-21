@@ -5,9 +5,9 @@ namespace E_commerce.Service.Interfaces
 {
     public interface IUserService
     {
-        Task<AuthenticationResponseDto> RegisterAsync(RegisterRequestDto request);
-        Task<AuthenticationResponseDto> LoginAsync(LoginRequestDto request);
-        Task<ApiResponseDto> LogoutAsync(string refreshToken);
-        Task<RefreshResponseDto> RefreshAsync(string refreshToken);
+        Task<LoginResponseDto> RegisterAsync(RegisterRequestDto request);
+        Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
+        Task<SpResponseDto> LogoutAsync(string refreshToken);
+        //Task<LoginResponseDto> RefreshAsync(string refreshToken);
     }
 }

@@ -10,23 +10,11 @@
         public const string AssignRoleToUser = "AssignRoleToUser";
 
 
-        // User Avatars
-        public const string CreateUserAvatar = "dbo.CreateUserAvatar";
-
-
-        // Image Upload Attempts
-        public const string CreateImageUploadAttempt = "dbo.CreateImageUploadAttempt";
-        public const string GetImageUploadAttemptByToken = "dbo.GetImageUploadAttemptByToken";
-        public const string MarkImageUploadCompleted = "dbo.MarkImageUploadCompleted";
-        public const string MarkImageUploadExpired = "dbo.MarkImageUploadExpired";
-        public const string GetExpiredImageUploads = "dbo.GetExpiredImageUploads";
-
-
         // Refresh Tokens
         public const string SaveRefreshToken = "dbo.SaveRefreshToken";
-        public const string GetRefreshToken = "dbo.GetRefreshToken";
         public const string RevokeRefreshToken = "dbo.RevokeRefreshToken";
         public const string RevokeAllUserTokens = "dbo.RevokeAllUserTokens";
+        public const string RotateRefreshToken = "dbo.RotateRefreshToken";
 
 
         // Categories

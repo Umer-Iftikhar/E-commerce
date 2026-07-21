@@ -1,28 +1,25 @@
-﻿using E_commerce.DTOs.Internal;
+﻿using Dapper;
+using E_commerce.Constants;
+using E_commerce.Data;
+using E_commerce.DTOs;
 using E_commerce.DTOs.Response;
-using E_commerce.Repositories.Interfaces;
 using E_commerce.Service.Interfaces;
 using E_commerce.Settings;
 using Microsoft.Extensions.Options;
+using System.Data;
 using System.Security.Cryptography;
 
 namespace E_commerce.Service.Implementations
 {
     public class RefreshTokenService : IRefreshTokenService
     {
-        private readonly IRefreshTokenRepository _refreshTokenRepository;
-        private readonly IUserRepository _userRepository;
+        private readonly DapperContext _context;
         private readonly ITokenService _tokenService;
         private readonly JwtConfig _jwtConfig;
 
-        public RefreshTokenService(
-            IRefreshTokenRepository refreshTokenRepository,
-            IUserRepository userRepository,
-            ITokenService tokenService,
-            IOptions<JwtConfig> options)
+        public RefreshTokenService(DapperContext context, ITokenService tokenService, IOptions<JwtConfig> options)
         {
-            _refreshTokenRepository = refreshTokenRepository;
-            _userRepository = userRepository;
+            _context = context;
             _tokenService = tokenService;
             _jwtConfig = options.Value;
         }
@@ -31,9 +28,20 @@ namespace E_commerce.Service.Implementations
         {
             var refreshToken = GenerateRefreshToken();
 
-            var expiresAt = DateTime.UtcNow.AddDays(_jwtConfig.RefreshTokenExpiryDays);
+            var expiresAt = DateTime.UtcNow
+                .AddDays(_jwtConfig.RefreshTokenExpiryDays);
 
-            var response = await _refreshTokenRepository.SaveRefreshTokenAsync(userId, refreshToken, expiresAt);
+            using var connection = _context.CreateConnection();
+
+            var response = await connection.QuerySingleAsync<SpResponseDto>(
+                StoredProcedures.SaveRefreshToken,
+                new
+                {
+                    UserId = userId,
+                    Token = refreshToken,
+                    ExpiresAt = expiresAt
+                },
+                commandType: CommandType.StoredProcedure);
 
             if (response.ResponseCode != 200)
             {
@@ -43,67 +51,43 @@ namespace E_commerce.Service.Implementations
             return refreshToken;
         }
 
-        public async Task<RefreshResponseDto> RefreshAsync(string refreshToken)
+        public async Task<LoginResponseDto> RefreshAsync(string refreshToken)
         {
-            var storedToken = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
+            var newRefreshToken = GenerateRefreshToken();
 
-            if (storedToken is null)
-            {
-                return new RefreshResponseDto
+            var newExpiresAt = DateTime.UtcNow.AddDays(_jwtConfig.RefreshTokenExpiryDays);
+
+            using var connection = _context.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                StoredProcedures.RotateRefreshToken,
+                new
                 {
-                    ResponseCode = 404,
-                    ResponseMessage = "Refresh Token Not Found"
+                    OldToken = refreshToken,
+                    NewToken = newRefreshToken,
+                    NewExpiresAt = newExpiresAt
+                },
+                commandType: CommandType.StoredProcedure);
+
+            var response = await multi.ReadSingleAsync<SpResponseDto>();
+
+            if (response.ResponseCode != 200)
+            {
+                return new LoginResponseDto
+                {
+                    ResponseCode = response.ResponseCode,
+                    ResponseMessage = response.ResponseMessage
                 };
             }
 
-            if (storedToken.IsRevoked)
-            {
-                return new RefreshResponseDto
-                {
-                    ResponseCode = 401,
-                    ResponseMessage = "Refresh Token Has Been Revoked"
-                };
-            }
-
-            if (storedToken.ExpiresAt <= DateTime.UtcNow)
-            {
-                return new RefreshResponseDto
-                {
-                    ResponseCode = 401,
-                    ResponseMessage = "Refresh Token Has Expired"
-                };
-            }
-
-            var revokeResponse = await _refreshTokenRepository.RevokeRefreshTokenAsync(refreshToken);
-
-            if (revokeResponse.ResponseCode != 200)
-            {
-                return new RefreshResponseDto
-                {
-                    ResponseCode = revokeResponse.ResponseCode,
-                    ResponseMessage = revokeResponse.ResponseMessage
-                };
-            }
-
-            var newRefreshToken = await GenerateAndSaveAsync(storedToken.UserId);
-
-            if (string.IsNullOrWhiteSpace(newRefreshToken))
-            {
-                return new RefreshResponseDto
-                {
-                    ResponseCode = 500,
-                    ResponseMessage = "Failed To Save Refresh Token"
-                };
-            }
-
-            var user = await _userRepository.GetUserByIdAsync(storedToken.UserId);
+            var user = await multi.ReadSingleOrDefaultAsync<UserDto>();
 
             if (user is null)
             {
-                return new RefreshResponseDto
+                return new LoginResponseDto
                 {
-                    ResponseCode = 404,
-                    ResponseMessage = "User Not Found"
+                    ResponseCode = 500,
+                    ResponseMessage = "Failed To Retrieve User Information"
                 };
             }
 
@@ -111,12 +95,13 @@ namespace E_commerce.Service.Implementations
             {
                 Id = user.Id,
                 Name = user.Name,
-                Email = user.Email
+                Email = user.Email,
+                Role = user.RoleName
             };
 
             var accessToken = _tokenService.GenerateToken(claims);
 
-            return new RefreshResponseDto
+            return new LoginResponseDto
             {
                 ResponseCode = 200,
                 ResponseMessage = "Token Refreshed Successfully",
@@ -131,29 +116,14 @@ namespace E_commerce.Service.Implementations
             return Convert.ToBase64String(bytes);
         }
 
-        public async Task<ApiResponseDto> RevokeAsync(string refreshToken)
+        public async Task<SpResponseDto> RevokeAsync(string refreshToken)
         {
-            var token = await _refreshTokenRepository.GetRefreshTokenAsync(refreshToken);
+            using var connection = _context.CreateConnection();
 
-            if (token is null)
-            {
-                return new ApiResponseDto
-                {
-                    ResponseCode = 404,
-                    ResponseMessage = "Refresh token not found."
-                };
-            }
-
-            if (token.IsRevoked)
-            {
-                return new ApiResponseDto
-                {
-                    ResponseCode = 200,
-                    ResponseMessage = "Refresh token already revoked."
-                };
-            }
-
-            return await _refreshTokenRepository.RevokeRefreshTokenAsync(refreshToken);
+            return await connection.QuerySingleAsync<SpResponseDto>(
+                StoredProcedures.RevokeRefreshToken,
+                new { Token = refreshToken },
+                commandType: CommandType.StoredProcedure);
         }
     }
 }
