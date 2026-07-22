@@ -1,0 +1,38 @@
+﻿    using Dapper;
+    using E_commerce.Constants;
+    using E_commerce.Data;
+    using E_commerce.DTOs;
+    using E_commerce.DTOs.Response;
+    using E_commerce.Service.Interfaces;
+    using System.Data;
+
+    namespace E_commerce.Service.Implementations
+    {
+        public class ProductService : IProductService
+        {
+            private readonly DapperContext _context;
+            public ProductService(DapperContext context)
+            {
+                _context = context;
+            }
+            public async Task<GetProductsResponseDto> GetAllProductsAsync() 
+            {
+                using var connection = _context.CreateConnection();
+
+                using var multi = await connection.QueryMultipleAsync(
+                    StoredProcedures.GetAllProducts,
+                    commandType: CommandType.StoredProcedure);
+
+                var response = await multi.ReadFirstAsync<SpResponseDto>();
+
+                var product = (await multi.ReadAsync<ProductListItemDto>()).ToList();
+
+                return new GetProductsResponseDto
+                {
+                    ResponseCode = response.ResponseCode,
+                    ResponseMessage = response.ResponseMessage,
+                    Products = product
+                };
+            }
+        }
+    }

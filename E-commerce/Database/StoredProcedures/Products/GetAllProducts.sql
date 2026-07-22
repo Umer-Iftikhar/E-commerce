@@ -18,23 +18,16 @@ BEGIN
             p.Description,
             p.Price,
             p.Stock,
+            p.CoverImagePath,
             p.CreatedAt,
 
             c.Id AS CategoryId,
-            c.Name AS CategoryName,
-
-            pi.StoredFileName,
-            pi.FileExtension,
-            pi.MimeType
+            c.Name AS CategoryName
 
         FROM dbo.Products AS p
 
         INNER JOIN dbo.Categories AS c
             ON c.Id = p.CategoryId
-
-        LEFT JOIN dbo.ProductImages AS pi
-            ON pi.ProductId = p.Id
-           AND pi.IsPrimary = 1
 
         WHERE p.IsDeleted = 0
           AND c.IsDeleted = 0
@@ -54,26 +47,20 @@ BEGIN
             p.Description,
             p.Price,
             p.Stock,
+            p.CoverImagePath,
             p.CreatedAt,
 
             c.Id AS CategoryId,
-            c.Name AS CategoryName,
-
-            pi.StoredFileName,
-            pi.FileExtension,
-            pi.MimeType
+            c.Name AS CategoryName
 
         FROM dbo.Products AS p
 
         INNER JOIN dbo.Categories AS c
             ON c.Id = p.CategoryId
 
-        LEFT JOIN dbo.ProductImages AS pi
-            ON pi.ProductId = p.Id
-           AND pi.IsPrimary = 1
-
         WHERE 1 = 0;
 
     END CATCH
 END
 GO
+

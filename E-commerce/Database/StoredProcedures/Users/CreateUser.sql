@@ -11,7 +11,7 @@ BEGIN
 
     BEGIN TRY
 
-        IF EXISTS (SELECT 1 FROM dbo.Users WHERE Email = @Email)
+        IF EXISTS (SELECT 1 FROM dbo.Users WHERE Email = @Email AND IsDeleted = 0 )
         BEGIN
             SELECT
                 409 AS ResponseCode,
