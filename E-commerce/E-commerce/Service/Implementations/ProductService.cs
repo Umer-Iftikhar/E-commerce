@@ -15,12 +15,17 @@
             {
                 _context = context;
             }
-            public async Task<GetProductsResponseDto> GetAllProductsAsync() 
+            public async Task<GetProductsResponseDto> GetProductsAsync(string? searchTerm, int? categoryId) 
             {
                 using var connection = _context.CreateConnection();
 
                 using var multi = await connection.QueryMultipleAsync(
-                    StoredProcedures.GetAllProducts,
+                    StoredProcedures.GetProducts,
+                    new
+                    {
+                        SearchTerm = searchTerm,
+                        CategoryId = categoryId
+                    },
                     commandType: CommandType.StoredProcedure);
 
                 var response = await multi.ReadFirstAsync<SpResponseDto>();

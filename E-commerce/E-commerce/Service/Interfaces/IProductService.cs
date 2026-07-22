@@ -4,7 +4,7 @@ namespace E_commerce.Service.Interfaces
 {
     public interface IProductService
     {
-        Task<GetProductsResponseDto> GetAllProductsAsync();
+        Task<GetProductsResponseDto> GetProductsAsync(string? searchTerm, int? categoryId);
         Task<GetProductResponseDto> GetProductByIdAsync(int productId);
     }
 }

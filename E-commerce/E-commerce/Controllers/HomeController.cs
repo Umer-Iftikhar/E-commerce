@@ -16,11 +16,10 @@ namespace E_commerce.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var response = await _productService.GetAllProductsAsync();
+            var response = await _productService.GetProductsAsync(null, null);
             if (response.ResponseCode != 200)
             {
-                ModelState.AddModelError(string.Empty, response.ResponseMessage);
-                return View();
+                return View("Error");
             }
             return View(response.Products);
         }

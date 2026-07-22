@@ -21,5 +21,20 @@ namespace E_commerce.Controllers
             }
             return View(response.Product);
         }
+        [HttpGet]
+        public async Task<IActionResult> Search(string? searchTerm, int? categoryId)
+        {
+            var response = await _productService.GetProductsAsync(searchTerm, categoryId);
+            if (response.ResponseCode != 200)
+            {
+                return NotFound();
+            }
+
+            return Json(new
+            {
+                success = true,
+                products = response.Products
+            });
+        }
     }
 }

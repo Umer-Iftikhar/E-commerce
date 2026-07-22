@@ -22,7 +22,7 @@
 
 
         // Products
-        public const string GetAllProducts = "dbo.GetAllProducts";
+        public const string GetProducts = "dbo.GetProducts";
         public const string GetProductById = "dbo.GetProductById";
 
         public const string CreateProduct = "dbo.CreateProduct";
