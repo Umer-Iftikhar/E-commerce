@@ -34,5 +34,29 @@
                     Products = product
                 };
             }
+
+        public async Task<GetProductResponseDto> GetProductByIdAsync(int productId)
+        {
+            using var connection = _context.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                StoredProcedures.GetProductById,
+                new
+                {
+                    ProductId = productId,
+                },
+                commandType: CommandType.StoredProcedure);
+
+            var response = await multi.ReadFirstAsync<SpResponseDto>();
+
+            var product = await multi.ReadFirstOrDefaultAsync<ProductDetailDto>();
+
+            return new GetProductResponseDto
+            {
+                ResponseCode = response.ResponseCode,
+                ResponseMessage = response.ResponseMessage,
+                Product = product
+            };
         }
+    }
     }

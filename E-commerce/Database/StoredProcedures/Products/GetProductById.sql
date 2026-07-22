@@ -29,26 +29,12 @@ BEGIN
                 p.Description,
                 p.Price,
                 p.Stock,
-                p.CreatedAt,
+                p.CoverImagePath,
                 c.Id AS CategoryId,
                 c.Name AS CategoryName
             FROM dbo.Products AS p
             INNER JOIN dbo.Categories AS c
                 ON c.Id = p.CategoryId
-            WHERE 1 = 0;
-
-            SELECT
-                Id,
-                ProductId,
-                StoredFileName,
-                FileExtension,
-                MimeType,
-                Width,
-                Height,
-                FileSizeBytes,
-                UploadedAt,
-                IsPrimary
-            FROM dbo.ProductImages
             WHERE 1 = 0;
 
             RETURN;
@@ -64,7 +50,7 @@ BEGIN
             p.Description,
             p.Price,
             p.Stock,
-            p.CreatedAt,
+            p.CoverImagePath,
             c.Id AS CategoryId,
             c.Name AS CategoryName
         FROM dbo.Products AS p
@@ -73,23 +59,6 @@ BEGIN
         WHERE p.Id = @ProductId
           AND p.IsDeleted = 0
           AND c.IsDeleted = 0;
-
-        SELECT
-            Id,
-            ProductId,
-            StoredFileName,
-            FileExtension,
-            MimeType,
-            Width,
-            Height,
-            FileSizeBytes,
-            UploadedAt,
-            IsPrimary
-        FROM dbo.ProductImages
-        WHERE ProductId = @ProductId
-        ORDER BY
-            IsPrimary DESC,
-            UploadedAt;
 
     END TRY
     BEGIN CATCH
@@ -104,26 +73,12 @@ BEGIN
             p.Description,
             p.Price,
             p.Stock,
-            p.CreatedAt,
+            p.CoverImagePath,
             c.Id AS CategoryId,
             c.Name AS CategoryName
         FROM dbo.Products AS p
         INNER JOIN dbo.Categories AS c
             ON c.Id = p.CategoryId
-        WHERE 1 = 0;
-
-        SELECT
-            Id,
-            ProductId,
-            StoredFileName,
-            FileExtension,
-            MimeType,
-            Width,
-            Height,
-            FileSizeBytes,
-            UploadedAt,
-            IsPrimary
-        FROM dbo.ProductImages
         WHERE 1 = 0;
 
     END CATCH

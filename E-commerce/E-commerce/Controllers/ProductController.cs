@@ -1,28 +1,25 @@
 ﻿using E_commerce.Service.Interfaces;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace E_commerce.Controllers
 {
-    public class HomeController : Controller
+    public class ProductController : Controller
     {
         private readonly IProductService _productService;
-
-        public HomeController(IProductService productService)
+        public ProductController(IProductService productService)
         {
             _productService = productService;
         }
-
         [HttpGet]
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Details(int id)
         {
-            var response = await _productService.GetAllProductsAsync();
+            var response = await _productService.GetProductByIdAsync(id);
             if (response.ResponseCode != 200)
             {
                 ModelState.AddModelError(string.Empty, response.ResponseMessage);
                 return View();
             }
-            return View(response.Products);
+            return View(response.Product);
         }
     }
 }
