@@ -19,6 +19,7 @@
 
         // Categories
         public const string CreateCategory = "dbo.CreateCategory";
+        public const string GetAllCategories = "dbo.GetAllCategories";
 
 
         // Products

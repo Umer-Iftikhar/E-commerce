@@ -4,7 +4,8 @@ GO
 CREATE OR ALTER PROCEDURE dbo.GetProducts
 (
     @SearchTerm NVARCHAR(100) = NULL,
-    @CategoryId INT = NULL
+    @CategoryId INT = NULL,
+    @CreatedDate DATE = NULL
 )
 AS
 BEGIN
@@ -32,6 +33,7 @@ BEGIN
           AND c.IsDeleted = 0
           AND (@SearchTerm IS NULL OR p.Name LIKE '%' + @SearchTerm + '%')
           AND (@CategoryId IS NULL OR p.CategoryId = @CategoryId)
+          AND (@CreatedDate IS NULL OR CAST(p.CreatedAt AS DATE) = @CreatedDate)
         ORDER BY p.Name;
 
     END TRY

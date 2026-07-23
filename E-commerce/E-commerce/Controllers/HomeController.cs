@@ -1,4 +1,5 @@
 ﻿using E_commerce.Service.Interfaces;
+using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,12 +17,27 @@ namespace E_commerce.Controllers
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var response = await _productService.GetProductsAsync(null, null);
-            if (response.ResponseCode != 200)
+            var productsResponse = await _productService.GetProductsAsync(null, null, null);
+            if (productsResponse.ResponseCode != 200)
             {
                 return View("Error");
             }
-            return View(response.Products);
+
+            var categoriesResponse = await _productService.GetAllCategoriesAsync();
+
+            if (categoriesResponse.ResponseCode != 200)
+            {
+                return View("Error");
+            }
+
+            //var viewModel = new HomeViewModel
+            //{
+            //    Products = productsResponse.Products,
+            //    Categories = categoriesResponse.Categories
+            //};
+
+            //return View(viewModel);
+            return View();
         }
     }
 }

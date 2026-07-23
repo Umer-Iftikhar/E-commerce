@@ -73,7 +73,7 @@ namespace E_commerce.Controllers
             SetAuthenticationCookies(response);
 
             TempData["SuccessMessage"] = "Registration successful. Welcome!";
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Product");
         }
 
         #endregion
@@ -113,7 +113,7 @@ namespace E_commerce.Controllers
             SetAuthenticationCookies(response);
 
             TempData["SuccessMessage"] = "Login successful.";
-            return RedirectToAction("Index", "Home");
+            return RedirectToAction("Index", "Product");
         }
 
         #endregion
