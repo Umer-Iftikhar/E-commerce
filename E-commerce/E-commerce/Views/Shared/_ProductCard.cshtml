@@ -32,10 +32,17 @@
                 Rs. @Model.Price.ToString("N0")
             </h5>
 
+            <div class="d-grid gap-2 mt-3">
+                <a asp-controller="Product" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-primary">
+                    View Details
+                </a>
+
+                <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="@Model.Id">
+                    Add to Cart
+                </button>
+            </div>
+
         </div>
-        <a asp-controller="Product" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-primary mt-2">
-            View Details
-        </a>
 
     </div>
 </div>

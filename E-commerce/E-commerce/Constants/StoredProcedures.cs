@@ -31,5 +31,10 @@
         public const string UpdateProduct = "dbo.UpdateProduct";
         public const string SoftDeleteProduct = "dbo.SoftDeleteProduct";
         public const string GetProductsByCategory = "dbo.GetProductsByCategory";
+
+
+        // Cart
+        public const string AddToCart = "dbo.AddToCart";
+
     }
 }
