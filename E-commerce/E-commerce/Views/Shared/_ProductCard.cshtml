@@ -33,16 +33,29 @@
             </h5>
 
             <div class="d-grid gap-2 mt-3">
-                <a asp-controller="Product" asp-action="Details" asp-route-id="@Model.Id" class="btn btn-outline-primary">
-                    View Details
+
+                <a asp-controller="Product"
+                   asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   class="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2">
+
+                    <img src="~/icons/search.svg"
+                         class="icon"
+                         alt="">
+
+                    <span>View Details</span>
+
                 </a>
 
-                <button type="button" class="btn btn-primary add-to-cart-btn" data-product-id="@Model.Id">
-                    Add to Cart
+                <button class="btn btn-primary add-to-cart-btn" data-product-id="@Model.Id">
+                    <img src="~/icons/cart4.svg" class="icon" alt="">
+                    <span class="button-text">Add to Cart</span>
                 </button>
+
             </div>
 
         </div>
 
     </div>
 </div>
+

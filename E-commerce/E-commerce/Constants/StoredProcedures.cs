@@ -35,6 +35,8 @@
 
         // Cart
         public const string AddToCart = "dbo.AddToCart";
-
+        public const string GetCart = "dbo.GetCart";
+        public const string RemoveFromCart = "dbo.RemoveFromCart";
+        public const string UpdateCartItemQuantity = "dbo.UpdateCartItemQuantity";
     }
 }
