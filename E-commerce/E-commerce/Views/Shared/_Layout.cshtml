@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/E_commerce.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cart.css" />
 </head>
 <body>
     <header>
@@ -24,34 +24,63 @@
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                <img src="~/icons/house-door-fill.svg" alt="" style="width:18px;height:18px;">
+                                <span>Home</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">
+                                <img src="~/icons/grid.svg" alt="" style="width:18px;height:18px;">
+                                <span>Products</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <li>
+                    </ul>
+                    <ul class="navbar-nav">
                             @if (User.Identity?.IsAuthenticated == true)
                             {
-                                <form asp-controller="Auth" asp-action="Logout" method="post">
-                                    @Html.AntiForgeryToken()
-                                    <button type="submit" class="btn btn-link nav-link text-dark">Logout</button>
-                                </form>
+                            <li class="nav-item">
+                                <button type="button" id="cartButton" class="btn btn-link nav-link text-dark">
+                                    <img src="~/icons/cart4.svg" alt="Cart" style="width:18px;height:18px;">
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                    <form asp-controller="Auth" asp-action="Logout" method="post">
+                                        @Html.AntiForgeryToken()
+                                        <button type="submit" class="btn btn-link nav-link text-dark">
+                                        <img src="~/icons/box-arrow-right.svg" alt="" style="width:18px;height:18px;">
+                                            Logout
+                                        </button>
+                                    </form>
+                                </li>
                             }
                             else
                             {
-                                <li>
-                                    <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">Login</a>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">
+                                    <img src="~/icons/box-arrow-in-right.svg" alt="" style="width:18px;height:18px;">
+                                        Login
+                                    </a>
                                 </li>
-                                <li>
-                                    <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">Register</a>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">
+                                    <img src="~/icons/person-plus.svg" alt="" style="width:18px;height:18px;">
+                                        Register
+                                    </a>
                                 </li>
                             }
-                        </li>
+                        
                     </ul>
                 </div>
             </div>
         </nav>
     </header>
+
+    <div id="cartOverlay" class="d-none"></div>
+
     <div class="container">
         <main role="main" class="pb-3">
             @RenderBody()
@@ -70,11 +99,15 @@
         </div>
     </div>
 
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-    @await RenderSectionAsync("Scripts", required: false)
     <script src="~/js/cart.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Styles", required: false)
+    
 
 </body>
 </html>

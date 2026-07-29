@@ -17,16 +17,72 @@ namespace E_commerce.Controllers
         }
 
         [HttpPost]
-        [Authorize]
+        [Authorize(Roles = "Customer")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartRequestDto request)
         {
-            var userId = int.Parse(
-                User.FindFirst(ClaimTypes.NameIdentifier)!.Value
-            );
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             var response = await _cartService.AddToCartAsync(userId, request.ProductId);
+
             return Json(response);
+        }
+
+        [Authorize(Roles = "Customer")]
+        [HttpGet]
+        public async Task<IActionResult> GetCart()
+        {
+            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var response = await _cartService.GetCartAsync(userId);
+
+            return PartialView("_Cart", response);
+        }
+
+        [Authorize(Roles = "Customer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> RemoveFromCart(int cartItemId)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+                var response = await _cartService.RemoveFromCartAsync(userId, cartItemId);
+
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new SpResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = ex.Message
+                });
+            }
+        }
+
+        [Authorize(Roles = "Customer")]
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdateCartItemQuantity(int cartItemId, int quantity)
+        {
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+                var response = await _cartService.UpdateCartItemQuantityAsync(userId, cartItemId, quantity);
+
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new SpResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = ex.Message
+                });
+            }
         }
     }
 }
