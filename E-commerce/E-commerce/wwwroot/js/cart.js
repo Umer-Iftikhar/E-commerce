@@ -96,14 +96,6 @@ function closeCart() {
     cartOverlay.innerHTML = "";
 }
 
-// document.addEventListener("click", function (e) {
-
-//     const closeButton = e.target.closest("#closeCartButton");
-
-//     if (closeButton) {
-//         closeCart();
-//     }
-// });
 
 async function refreshCart() {
 

@@ -19,52 +19,42 @@ namespace E_commerce.Middlewares
 
         public async Task InvokeAsync(HttpContext context, IRefreshTokenService refreshTokenService)
         {
-            if (!context.Request.Cookies.TryGetValue(CookieConstants.AccessToken, out var accessToken))
+            var hasAccessToken = context.Request.Cookies.TryGetValue(CookieConstants.AccessToken, out var accessToken);
+            var hasRefreshToken = context.Request.Cookies.TryGetValue(CookieConstants.RefreshToken, out var refreshToken);
+
+            var needsRefresh = hasRefreshToken && (!hasAccessToken || IsExpired(accessToken!));
+
+            if (needsRefresh)
             {
-                await _next(context);
-                return;
-            }
+                var response = await refreshTokenService.RefreshAsync(refreshToken!);
 
-            if (!IsExpired(accessToken))
-            {
-                await _next(context);
-                return;
-            }
+                if (response.ResponseCode == 200)
+                {
+                    context.Items[CookieConstants.AccessToken] = response.AccessToken;
 
-            if (!context.Request.Cookies.TryGetValue(CookieConstants.RefreshToken, out var refreshToken))
-            {
-                await _next(context);
-                return;
-            }
+                    context.Response.Cookies.Append(CookieConstants.AccessToken, response.AccessToken!,
+                        new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            SameSite = SameSiteMode.Strict,
+                            Expires = DateTimeOffset.UtcNow.AddMinutes(_jwtConfig.ExpiryMinutes)
+                        });
 
-            var response = await refreshTokenService.RefreshAsync(refreshToken);
-
-
-            if (response.ResponseCode == 200)
-            {
-                context.Items[CookieConstants.AccessToken] = response.AccessToken;
-                context.Response.Cookies.Append(CookieConstants.AccessToken, response.AccessToken!,
-                    new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTimeOffset.UtcNow.AddMinutes(_jwtConfig.ExpiryMinutes)
-                    });
-
-                context.Response.Cookies.Append(CookieConstants.RefreshToken,response.RefreshToken!,
-                    new CookieOptions
-                    {
-                        HttpOnly = true,
-                        Secure = true,
-                        SameSite = SameSiteMode.Strict,
-                        Expires = DateTimeOffset.UtcNow.AddDays(_jwtConfig.RefreshTokenExpiryDays)
-                    });
-            }
-            else
-            {
-                context.Response.Cookies.Delete(CookieConstants.AccessToken);
-                context.Response.Cookies.Delete(CookieConstants.RefreshToken);
+                    context.Response.Cookies.Append(CookieConstants.RefreshToken, response.RefreshToken!,
+                        new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Secure = true,
+                            SameSite = SameSiteMode.Strict,
+                            Expires = DateTimeOffset.UtcNow.AddDays(_jwtConfig.RefreshTokenExpiryDays)
+                        });
+                }
+                else
+                {
+                    context.Response.Cookies.Delete(CookieConstants.AccessToken);
+                    context.Response.Cookies.Delete(CookieConstants.RefreshToken);
+                }
             }
 
             await _next(context);
@@ -81,7 +71,7 @@ namespace E_commerce.Middlewares
 
                 var token = handler.ReadJwtToken(jwt);
 
-                return token.ValidTo <= DateTime.UtcNow;
+                return token.ValidTo <= DateTime.UtcNow.AddSeconds(30);
             }
             catch
             {
