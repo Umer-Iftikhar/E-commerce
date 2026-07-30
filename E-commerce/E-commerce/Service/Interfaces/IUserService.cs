@@ -8,6 +8,5 @@ namespace E_commerce.Service.Interfaces
         Task<LoginResponseDto> RegisterAsync(RegisterRequestDto request);
         Task<LoginResponseDto> LoginAsync(LoginRequestDto request);
         Task<SpResponseDto> LogoutAsync(string refreshToken);
-        //Task<LoginResponseDto> RefreshAsync(string refreshToken);
     }
 }
