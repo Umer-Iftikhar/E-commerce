@@ -17,3 +17,17 @@ function showLoader(element, message = "Loading...") {
     `;
 
 }
+
+
+function getCsrfToken() {
+    return document.querySelector('meta[name="csrf-token"]').content;
+}
+function showToast(message) {
+    const toastElement = document.getElementById("cartToast");
+
+    toastElement.querySelector(".toast-body").textContent = message;
+
+    const toast = new bootstrap.Toast(toastElement);
+
+    toast.show();
+}

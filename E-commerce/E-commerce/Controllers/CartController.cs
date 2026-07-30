@@ -31,7 +31,7 @@ namespace E_commerce.Controllers
         [Authorize(Roles = "Customer")]
         [HttpGet]
         public async Task<IActionResult> GetCart()
-        {
+            {
             var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
             var response = await _cartService.GetCartAsync(userId);

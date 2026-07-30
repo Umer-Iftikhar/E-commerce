@@ -1,18 +1,4 @@
 ﻿
-function showToast(message) {
-    const toastElement = document.getElementById("cartToast");
-
-    toastElement.querySelector(".toast-body").textContent = message;
-
-    const toast = new bootstrap.Toast(toastElement);
-
-    toast.show();
-}
-
-function getCsrfToken() {
-    return document.querySelector('meta[name="csrf-token"]').content;
-}
-
 // Add to Cart
 const addToCartButtons = document.querySelectorAll(".add-to-cart-btn");
 

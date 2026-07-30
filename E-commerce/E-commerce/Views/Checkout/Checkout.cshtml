@@ -1,0 +1,206 @@
+﻿@model E_commerce.ViewModels.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<div class="container py-4">
+
+    <h2 class="mb-4">
+        <img src="~/icons/bag-check.svg"
+             alt=""
+             class="section-icon" />
+        Checkout
+    </h2>
+
+    <form id="checkoutForm" asp-action="CreateOrder" asp-controller="Checkout" method="post">
+
+        @Html.AntiForgeryToken()
+
+        <div class="row g-4">
+
+            <!-- Left Side -->
+            <div class="col-lg-8">
+
+                <!-- Customer -->
+                <div class="card shadow-sm mb-4">
+                    <div class="card-header">
+                        <img src="~/icons/person-circle.svg"
+                             alt=""
+                             class="section-icon" />
+                        Customer Information
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+                            <label class="form-label">Name</label>
+                            <input class="form-control"
+                                   value="@Model.Name"
+                                   readonly />
+                        </div>
+
+                        <div>
+                            <label class="form-label">Email</label>
+                            <input class="form-control"
+                                   value="@Model.Email"
+                                   readonly />
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- Shipping -->
+                <div class="card shadow-sm mb-4">
+
+                    <div class="card-header">
+                        <img src="~/icons/house-door-fill.svg"
+                             alt=""
+                             class="section-icon" />
+                        Shipping Information
+                    </div>
+
+                    <div class="card-body">
+
+                        <div class="mb-3">
+
+                            <label asp-for="Address" class="form-label"></label>
+
+                            <textarea asp-for="Address"
+                                      class="form-control"
+                                      rows="3"></textarea>
+
+                            <span asp-validation-for="Address"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                        <div>
+
+                            <label asp-for="PhoneNumber"
+                                   class="form-label"></label>
+
+                            <input asp-for="PhoneNumber"
+                                   class="form-control" />
+
+                            <span asp-validation-for="PhoneNumber"
+                                  class="text-danger"></span>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Payment -->
+                <div class="card shadow-sm">
+
+                    <div class="card-header">
+                        <img src="~/icons/cash-coin.svg"
+                             alt=""
+                             class="section-icon" />
+                        Payment Method
+                    </div>
+
+                    <div class="card-body">
+
+                        <input asp-for="PaymentMethodId" type="hidden" />
+
+                        <input class="form-control"
+                               value="Cash on Delivery"
+                               readonly />
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <!-- Right Side -->
+            <div class="col-lg-4">
+
+                <div class="card shadow-sm checkout-summary">
+
+                    <div class="card-header">
+                        <img src="~/icons/bag-check.svg"
+                             alt=""
+                             class="section-icon" />
+                        Order Summary
+                    </div>
+
+                    <div class="card-body">
+
+                        @foreach (var item in Model.Items)
+                        {
+                            <div class="d-flex mb-3">
+
+                                <img src="@item.CoverImagePath"
+                                     alt="@item.ProductName"
+                                     class="checkout-product-image me-3" />
+
+                                <div class="flex-grow-1">
+
+                                    <div class="fw-semibold">
+                                        @item.ProductName
+                                    </div>
+
+                                    <small class="text-muted">
+                                        Rs. @item.Price.ToString("N0")
+                                        ×
+                                        @item.Quantity
+                                    </small>
+
+                                </div>
+
+                                <div class="fw-bold">
+                                    Rs. @item.Subtotal.ToString("N0")
+                                </div>
+
+                            </div>
+
+                            <hr />
+                        }
+
+                        <div class="d-flex justify-content-between fs-5 fw-bold mb-4">
+
+                            <span>Total</span>
+
+                            <span>
+                                Rs. @Model.Total.ToString("N0")
+                            </span>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-success w-100">
+
+                            <img src="~/icons/bag-check.svg"
+                                 alt=""
+                                 class="section-icon" />
+
+                            Place Order
+
+                        </button>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </form>
+
+</div>
+
+@section Scripts
+{
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+    <link rel="stylesheet" href="~/css/checkout.css" asp-append-version="true" />
+
+    <script src="~/js/checkout.js"></script>
+}
