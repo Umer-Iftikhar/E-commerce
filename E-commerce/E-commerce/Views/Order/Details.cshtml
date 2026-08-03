@@ -1,0 +1,164 @@
+﻿@using E_commerce.Helpers.Extensions
+@model E_commerce.ViewModels.OrderDetailsViewModel
+
+@{
+    ViewData["Title"] = "Order Details";
+}
+
+<div class="container py-4">
+
+    <div class="d-flex justify-content-between align-items-center mb-4">
+
+        <h2 class="mb-0">
+
+            <img src="~/icons/bag-check.svg" class="section-icon" alt="" />
+
+            Order #@Model.Order!.OrderId
+
+        </h2>
+
+        <a asp-action="GetOrders" class="btn btn-outline-secondary">
+
+            Back
+
+        </a>
+
+    </div>
+
+    <div class="row g-4">
+
+        <div class="col-lg-4">
+
+            <div class="card shadow-sm mb-4">
+
+                <div class="card-header">
+
+                    <img src="~/icons/person-circle.svg" class="section-icon" alt="" />
+
+                    Order Information
+
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+                        <strong>Status:</strong><br />
+                        @(((E_commerce.Enums.OrderStatus)Model.Order.Status).GetDisplayName())
+                    </p>
+
+                    <p>
+                        <strong>Placed:</strong><br />
+                        @Model.Order.CreatedAt.ToString("dd MMM yyyy hh:mm tt")
+                    </p>
+
+                    <p>
+                        <strong>Payment:</strong><br />
+                        @(((E_commerce.Enums.PaymentMethod)Model.Order.PaymentMethodId).GetDisplayName())
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+
+                    <img src="~/icons/house-door-fill.svg" class="section-icon" alt="" />
+
+                    Shipping
+
+                </div>
+
+                <div class="card-body">
+
+                    <p>
+
+                        <strong>Address</strong><br />
+
+                        @Model.Order.Address
+
+                    </p>
+
+                    <p class="mb-0">
+
+                        <strong>Phone</strong><br />
+
+                        @Model.Order.PhoneNumber
+
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <div class="col-lg-8">
+
+            <div class="card shadow-sm">
+
+                <div class="card-header">
+
+                    <img src="~/icons/cart4.svg" class="section-icon" alt="" />
+
+                    Ordered Items
+
+                </div>
+
+                <div class="card-body">
+
+                    @foreach (var item in Model.Items)
+                    {
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+
+                            <div>
+
+                                <div class="fw-semibold">
+
+                                    @item.ProductName
+
+                                </div>
+
+                                <small class="text-muted">
+
+                                    Rs. @item.Price.ToString("N0")
+                                    ×
+                                    @item.Quantity
+
+                                </small>
+
+                            </div>
+
+                            <div class="fw-bold">
+
+                                Rs. @item.Subtotal.ToString("N0")
+
+                            </div>
+
+                        </div>
+
+                        <hr />
+                    }
+
+                    <div class="d-flex justify-content-between fs-5 fw-bold">
+
+                        <span>Total</span>
+
+                        <span>
+
+                            Rs. @Model.Order.Total.ToString("N0")
+
+                        </span>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>

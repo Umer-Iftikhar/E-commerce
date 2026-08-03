@@ -10,12 +10,12 @@ using System.Security.Claims;
 namespace E_commerce.Controllers
 {
     [Authorize(Roles = "Customer")]
-    public class CheckoutController : Controller
+    public class OrderController : Controller
     {
         private readonly ICartService _cartService;
         private readonly ICheckoutService _checkoutService;
 
-        public CheckoutController(ICartService cartService, ICheckoutService checkoutService)
+        public OrderController(ICartService cartService, ICheckoutService checkoutService)
         {
             _cartService = cartService;
             _checkoutService = checkoutService;
@@ -78,6 +78,64 @@ namespace E_commerce.Controllers
             var response = await _checkoutService.CreateOrderAsync(request);
 
             return Json(response);
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetOrders()
+        {
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var request = new GetOrdersRequestDto
+            {
+                UserId = userId
+            };
+
+            try
+            {
+                var response = await _checkoutService.GetOrdersAsync(request);
+
+                var model = new OrdersViewModel
+                {
+                    Orders = response.Orders
+                };
+
+                return View(model);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction("Index", "Home");
+            }
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> Details(int id)
+        {
+            int userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+
+            var request = new GetOrderDetailsRequestDto
+            {
+                UserId = userId,
+                OrderId = id
+            };
+
+            try
+            {
+                var response = await _checkoutService.GetOrderDetailsAsync(request);
+
+                var model = new OrderDetailsViewModel
+                {
+                    Order = response.Order!,
+                    Items = response.Items
+                };
+
+                return View(model);
+            }
+            catch (InvalidOperationException ex)
+            {
+                TempData["Error"] = ex.Message;
+                return RedirectToAction(nameof(GetOrders));
+            }
         }
     }
 }
