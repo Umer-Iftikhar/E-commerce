@@ -59,7 +59,7 @@
 
                         @foreach (var order in Model.Orders)
                         {
-                            <tr>
+                            <tr class="order-row" data-order-id="@order.OrderId">
 
                                 <td>
                                     #@order.OrderId
@@ -83,14 +83,23 @@
 
                                 <td class="text-end">
 
-                                    <a asp-action="Details" asp-route-id="@order.OrderId" class="btn btn-outline-success btn-sm">
+                                    <button type="button" class="btn btn-outline-success btn-sm btn-order-details" data-order-id="@order.OrderId">
 
                                         View Details
 
-                                    </a>
+                                    </button>
 
                                 </td>
 
+                            </tr>
+
+                            <tr id="order-details-row-@order.OrderId" class="d-none">
+                                <td colspan="6" class="p-0">
+
+                                    <div id="order-details-@order.OrderId" class="p-4 border-top bg-light">
+                                    </div>
+
+                                </td>
                             </tr>
                         }
 
@@ -102,5 +111,8 @@
 
         </div>
     }
-
 </div>
+
+@section Scripts {
+    <script src="~/js/orders.js"></script>
+}

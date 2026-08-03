@@ -53,3 +53,20 @@ body {
     width: 18px;
     height: 18px;
 }
+
+.toast-success {
+    border-left: 4px solid #198754;
+}
+
+.toast-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.toast-error {
+    border-left: 4px solid #dc3545;
+}
+
+.toast-icon {
+    width: 20px;
+    height: 20px;
+}

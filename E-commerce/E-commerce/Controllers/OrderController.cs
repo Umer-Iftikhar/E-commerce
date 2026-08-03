@@ -129,7 +129,7 @@ namespace E_commerce.Controllers
                     Items = response.Items
                 };
 
-                return View(model);
+                return PartialView("_OrderDetails", model);
             }
             catch (InvalidOperationException ex)
             {

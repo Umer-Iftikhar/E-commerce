@@ -93,10 +93,39 @@
         </div>
     </footer>
 
-    <div class="toast-container position-fixed bottom-0 end-0 p-3">
-        <div id="cartToast" class="toast" role="alert">
-            <div class="toast-body"></div>
+    <div class="toast-container position-fixed top-0 end-0 p-4">
+
+        <div id="appToast"
+             class="toast custom-toast"
+             role="alert"
+             aria-live="assertive"
+             aria-atomic="true">
+
+            <div class="toast-header">
+
+                <img id="toastIcon"
+                     src=""
+                     alt=""
+                     class="toast-icon me-2" />
+
+                <strong id="toastTitle" class="me-auto">
+                    Notification
+                </strong>
+
+                <button type="button"
+                        class="btn-close"
+                        data-bs-dismiss="toast"
+                        aria-label="Close">
+                </button>
+
+            </div>
+
+            <div id="toastMessage"
+                 class="toast-body">
+            </div>
+
         </div>
+
     </div>
 
 

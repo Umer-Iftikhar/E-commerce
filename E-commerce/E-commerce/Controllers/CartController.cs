@@ -21,22 +21,45 @@ namespace E_commerce.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart([FromBody] AddToCartRequestDto request)
         {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            try
+            {
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var response = await _cartService.AddToCartAsync(userId, request.ProductId);
+                var response = await _cartService.AddToCartAsync(userId, request.ProductId);
 
-            return Json(response);
+                return Json(response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new SpResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = ex.Message
+                });
+            }
         }
 
         [Authorize(Roles = "Customer")]
         [HttpGet]
         public async Task<IActionResult> GetCart()
+        {
+            try
             {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var response = await _cartService.GetCartAsync(userId);
+                var response = await _cartService.GetCartAsync(userId);
 
-            return PartialView("_Cart", response);
+                return PartialView("_Cart", response);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new SpResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = ex.Message
+                });
+            }
+
         }
 
         [Authorize(Roles = "Customer")]

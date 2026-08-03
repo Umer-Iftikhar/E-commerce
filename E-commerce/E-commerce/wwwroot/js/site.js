@@ -22,12 +22,48 @@ function showLoader(element, message = "Loading...") {
 function getCsrfToken() {
     return document.querySelector('meta[name="csrf-token"]').content;
 }
-function showToast(message) {
-    const toastElement = document.getElementById("cartToast");
+function showToast(message, type = "success") {
 
-    toastElement.querySelector(".toast-body").textContent = message;
+    const toastElement = document.getElementById("appToast");
 
-    const toast = new bootstrap.Toast(toastElement);
+    const toastTitle = document.getElementById("toastTitle");
+    const toastMessage = document.getElementById("toastMessage");
+    const toastIcon = document.getElementById("toastIcon");
+
+    const config = {
+        success: {
+            title: "Success",
+            icon: "/icons/check-circle.svg",
+            cssClass: "toast-success"
+        },
+        warning: {
+            title: "Warning",
+            icon: "/icons/exclamation-circle.svg",
+            cssClass: "toast-warning"
+        },
+        error: {
+            title: "Error",
+            icon: "/icons/x-circle.svg",
+            cssClass: "toast-error"
+        }
+    };
+
+    const current = config[type] ?? config.success;
+
+    toastElement.classList.remove(
+        "toast-success",
+        "toast-warning",
+        "toast-error"
+    );
+
+    toastElement.classList.add(current.cssClass);
+
+    toastTitle.textContent = current.title;
+    toastMessage.textContent = message;
+    toastIcon.src = current.icon;
+    toastIcon.alt = current.title;
+
+    const toast = bootstrap.Toast.getOrCreateInstance(toastElement);
 
     toast.show();
 }

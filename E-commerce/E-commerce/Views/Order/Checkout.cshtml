@@ -1,4 +1,6 @@
-﻿@model E_commerce.ViewModels.CheckoutViewModel
+﻿@using E_commerce.Helpers.Extensions;
+
+@model E_commerce.ViewModels.CheckoutViewModel
 
 @{
     ViewData["Title"] = "Checkout";
@@ -13,7 +15,7 @@
         Checkout
     </h2>
 
-    <form id="checkoutForm" asp-action="CreateOrder" asp-controller="Checkout" method="post">
+    <form id="checkoutForm" asp-action="CreateOrder" asp-controller="Order" method="post">
 
         @Html.AntiForgeryToken()
 
@@ -107,7 +109,7 @@
                         <input asp-for="PaymentMethodId" type="hidden" />
 
                         <input class="form-control"
-                               value="Cash on Delivery"
+                               value="@((E_commerce.Enums.PaymentMethod)Model.PaymentMethodId).GetDisplayName()"
                                readonly />
 
                     </div>

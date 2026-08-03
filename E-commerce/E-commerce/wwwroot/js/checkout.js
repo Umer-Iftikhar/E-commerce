@@ -36,27 +36,22 @@ async function submitCheckout(e) {
         const result = await response.json();
 
         if (result.responseCode === 200) {
-
-            showToast(result.responseMessage);
-
+            showToast(result.responseMessage, "success");
             setTimeout(() => {
-                window.location.href = "/Product/Index";
-            }, 1000);
-
+                window.location.href = "/Order/GetOrders";
+            }, 1500);
             return;
         }
 
-        showToast(result.responseMessage);
+        showToast(result.responseMessage, "error");
 
-        // Future feature:
-        // Highlight unavailable products using result.invalidProductIds
 
     }
     catch (error) {
 
         console.error(error);
 
-        showToast("Something went wrong.");
+        showToast("Something went wrong.", "error");
 
     }
     finally {

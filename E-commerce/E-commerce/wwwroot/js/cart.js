@@ -22,7 +22,7 @@ addToCartButtons.forEach(button => {
                 })
             });
             const data = await response.json();
-            showToast(data.responseMessage);
+            showToast(data.responseMessage, "success");
 
             if (response.ok) {
                 button.innerText = "Added";
@@ -30,7 +30,7 @@ addToCartButtons.forEach(button => {
         }
         catch (error) {
             console.error(error);
-            showToast("Network error. Please try again.");
+            showToast("Network error. Please try again.", "error");
         }
         finally {
             setTimeout(() => {
@@ -59,12 +59,12 @@ if (cartButton) {
             const response = await fetch("/Cart/GetCart");
 
             if (!response.ok) {
-                cartOverlay.innerHTML = `<p class="text-danger">Something went wrong. Please try again.</p>`;
+                const result = await response.json();
+                showToast(result.responseMessage, "error");
+                cartOverlay.classList.add("d-none");
                 return;
             }
-
             const html = await response.text();
-
             cartOverlay.innerHTML = html;
 
             cartOverlay.classList.remove("d-none");
@@ -129,14 +129,14 @@ async function updateQuantity(button, increase) {
         const result = await response.json();
 
         if (result.responseCode !== 200) {
-            showToast(result.responseMessage);
+            showToast(result.responseMessage, "error");
             return;
         }
 
         await refreshCart();
     }
     catch {
-        showToast("Failed to update cart.");
+        showToast("Failed to update cart.", "error");
     }
 }
 
@@ -163,14 +163,14 @@ async function removeCartItem(button) {
         const result = await response.json();
 
         if (result.responseCode !== 200) {
-            showToast(result.responseMessage);
+            showToast(result.responseMessage, "error");
             return;
         }
 
         await refreshCart();
     }
     catch {
-        showToast("Failed to remove item.");
+        showToast("Failed to remove item.", "error");
     }
 }
 
