@@ -34,5 +34,13 @@
         public const string CreateOrder = "dbo.CreateOrder";
         public const string GetOrders = "dbo.GetOrders";    
         public const string GetOrderDetails = "dbo.GetOrderDetails";
+
+
+        // User Profile
+        public const string GetPasswordHash = "dbo.GetPasswordHash";
+        public const string UpdateProfile = "dbo.UpdateProfile";
+        public const string UpdateProfilePicture = "dbo.UpdateProfilePicture";
+        public const string ChangePassword = "dbo.ChangePassword";
+        public const string GetProfileImage = "dbo.GetProfileImage";
     }
 }

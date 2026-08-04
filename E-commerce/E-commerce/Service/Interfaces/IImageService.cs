@@ -4,6 +4,6 @@ namespace E_commerce.Services.Interfaces
 {
     public interface IImageService
     {
-        Task<UploadImageResponseDto> SaveAvatarAsync(IFormFile image);
+        Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image);
     }
 }

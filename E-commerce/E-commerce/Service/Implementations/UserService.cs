@@ -197,9 +197,5 @@ namespace E_commerce.Service.Implementations
                 RefreshToken = refreshToken
             };
         }
-        //public Task<RefreshResponseDto> RefreshAsync(string refreshToken)
-        //{
-        //    return _refreshTokenService.RefreshAsync(refreshToken);
-        //}
     }
 }

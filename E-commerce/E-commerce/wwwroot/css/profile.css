@@ -1,0 +1,58 @@
+﻿:root {
+    --profile-sidebar-width: 380px;
+}
+
+/* Profile Sidebar */
+
+.profile-sidebar {
+    position: fixed;
+    top: 0;
+    right: calc(-1 * var(--profile-sidebar-width));
+    width: var(--profile-sidebar-width);
+    height: 100dvh;
+    padding: 1.5rem;
+    background: #fff;
+    border-left: 1px solid #dee2e6;
+    box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+    overflow-y: auto;
+    transition: right .3s ease;
+    z-index: 1055;
+}
+
+    .profile-sidebar.open {
+        right: 0;
+    }
+
+/* Page Push */
+
+#pageContent {
+    transition: margin-right .3s ease;
+}
+
+    #pageContent.profile-open {
+        margin-right: var(--profile-sidebar-width);
+    }
+
+/* Avatar */
+
+.profile-avatar {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border: 3px solid #dee2e6;
+}
+
+/* Sidebar Icons */
+
+.sidebar-icon {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+/* Upload */
+
+#profileImageInput {
+    margin-bottom: .75rem;
+}
