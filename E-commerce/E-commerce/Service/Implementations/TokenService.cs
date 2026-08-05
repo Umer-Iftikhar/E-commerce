@@ -1,4 +1,5 @@
-﻿using E_commerce.DTOs;
+﻿using E_commerce.Constants;
+using E_commerce.DTOs;
 using E_commerce.Service.Interfaces;
 using E_commerce.Settings;
 using Microsoft.Extensions.Options;
@@ -26,16 +27,14 @@ namespace E_commerce.Service.Implementations
                 new Claim(JwtRegisteredClaimNames.Email, user.Email),
                 new Claim(JwtRegisteredClaimNames.Name, user.Name),
                 new Claim(ClaimTypes.Role, user.Role ?? string.Empty),
-                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimConstants.ProfileImagePath, user.ProfileImagePath ?? string.Empty)
             };
 
 
-            var key = new SymmetricSecurityKey(
-                Encoding.UTF8.GetBytes(_jwtConfig.SecretKey));
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.SecretKey));
 
-            var credentials = new SigningCredentials(
-                key,
-                SecurityAlgorithms.HmacSha256);
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
             var token = new JwtSecurityToken(
                 issuer: _jwtConfig.Issuer,

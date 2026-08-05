@@ -28,8 +28,7 @@ namespace E_commerce.Service.Implementations
         {
             var refreshToken = GenerateRefreshToken();
 
-            var expiresAt = DateTime.UtcNow
-                .AddDays(_jwtConfig.RefreshTokenExpiryDays);
+            var expiresAt = DateTime.UtcNow.AddDays(_jwtConfig.RefreshTokenExpiryDays);
 
             using var connection = _context.CreateConnection();
 

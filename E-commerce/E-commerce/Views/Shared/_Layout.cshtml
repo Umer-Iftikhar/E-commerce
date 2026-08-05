@@ -1,4 +1,10 @@
-﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+﻿@using E_commerce.Constants
+@using System.Security.Claims
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    var profileImage = User.FindFirstValue(ClaimConstants.ProfileImagePath);
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -10,15 +16,15 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/css/cart.css" />
+    <link rel="stylesheet" href="~/css/cart.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">E_commerce</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
@@ -48,14 +54,18 @@
                                 </button>
                             </li>
                             <li class="nav-item">
-                                    <form asp-controller="Auth" asp-action="Logout" method="post">
-                                        @Html.AntiForgeryToken()
-                                        <button type="submit" class="btn btn-link nav-link text-dark">
-                                        <img src="~/icons/box-arrow-right.svg" alt="" style="width:18px;height:18px;">
-                                            Logout
-                                        </button>
-                                    </form>
-                                </li>
+                                <button type="button" id="profileButton" class="btn btn-link nav-link text-dark">
+                                    @if (!string.IsNullOrEmpty(profileImage))
+                                    {
+                                        <img id="navbarProfileImage"
+                                             src="/@profileImage" alt="Profile" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <img id="navbarProfileImage" src="~/icons/person-circle.svg" alt="Profile" style="width:28px;height:28px;" />
+                                    }
+                                </button>
+                            </li>
                             }
                             else
                             {
@@ -80,11 +90,16 @@
     </header>
 
     <div id="cartOverlay" class="d-none"></div>
+    <div id="profileSidebar"class="profile-sidebar"></div>
 
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+    <div id="pageContent">
+
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
     </div>
 
     <footer class="border-top footer text-muted">
@@ -95,49 +110,33 @@
 
     <div class="toast-container position-fixed top-0 end-0 p-4">
 
-        <div id="appToast"
-             class="toast custom-toast"
-             role="alert"
-             aria-live="assertive"
-             aria-atomic="true">
+        <div id="appToast" class="toast custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
 
             <div class="toast-header">
 
-                <img id="toastIcon"
-                     src=""
-                     alt=""
-                     class="toast-icon me-2" />
+                <img id="toastIcon" src="" alt="" class="toast-icon me-2" />
 
                 <strong id="toastTitle" class="me-auto">
                     Notification
                 </strong>
 
-                <button type="button"
-                        class="btn-close"
-                        data-bs-dismiss="toast"
-                        aria-label="Close">
-                </button>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
 
             </div>
 
-            <div id="toastMessage"
-                 class="toast-body">
-            </div>
+            <div id="toastMessage"class="toast-body"></div>
 
         </div>
 
     </div>
 
-
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/cart.js" asp-append-version="true"></script>
-    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <script src="~/js/profile.js" asp-append-version="true"></script>
 
     @await RenderSectionAsync("Scripts", required: false)
     @await RenderSectionAsync("Styles", required: false)
-    
-
 </body>
 </html>

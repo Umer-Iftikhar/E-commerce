@@ -2,7 +2,6 @@
 using E_commerce.Services.Interfaces;
 using E_commerce.Settings;
 using Microsoft.Extensions.Options;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace E_commerce.Services.Implementations
 {
@@ -19,16 +18,13 @@ namespace E_commerce.Services.Implementations
             _imageStorageSettings = imageStorageSettings.Value;
         }
 
-        public async Task<UploadImageResponseDto> SaveAvatarAsync(IFormFile image)
+        public async Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image)
         {
-            //var maxSize = _imageStorageSettings.MaxFileSizeBytes;
-            //var fileSize = image.Length;
-
             var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
 
             if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
             {
-                return new UploadImageResponseDto
+                return new ImagePathResponseDto
                 {
                     ResponseCode = 400,
                     ResponseMessage = "Invalid image format"
@@ -37,7 +33,7 @@ namespace E_commerce.Services.Implementations
 
             if (image.Length > _imageStorageSettings.MaxFileSizeBytes)
             {
-                return new UploadImageResponseDto
+                return new ImagePathResponseDto
                 {
                     ResponseCode = 400,
                     ResponseMessage = "Image size exceeds limit"
@@ -59,7 +55,7 @@ namespace E_commerce.Services.Implementations
 
             var relativePath = Path.Combine(_imageStorageSettings.AvatarsFolder,fileName).Replace("\\", "/");
 
-            return new UploadImageResponseDto
+            return new ImagePathResponseDto
             {
                 ResponseCode = 200,
                 ResponseMessage = "Image Saved Successfully",

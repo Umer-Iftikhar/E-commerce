@@ -4,6 +4,7 @@ using E_commerce.Data;
 using E_commerce.DTOs;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
+using E_commerce.Models;
 using E_commerce.Service.Interfaces;
 using E_commerce.Services.Interfaces;
 using E_commerce.Settings;
@@ -107,7 +108,8 @@ namespace E_commerce.Service.Implementations
                 Id = user.Id,
                 Name = user.Name,
                 Email = user.Email,
-                Role = user.RoleName
+                Role = user.RoleName,
+                ProfileImagePath = user.ProfileImagePath
             };
 
             var accessToken = _tokenService.GenerateToken(claims);
@@ -184,7 +186,8 @@ namespace E_commerce.Service.Implementations
                 Id = userResponse.UserId,
                 Name = request.Name,
                 Email = request.Email,
-                Role = userResponse.RoleName
+                Role = userResponse.RoleName,
+                ProfileImagePath = profileImagePath
             };
 
             var accessToken = _tokenService.GenerateToken(claims);
@@ -197,9 +200,5 @@ namespace E_commerce.Service.Implementations
                 RefreshToken = refreshToken
             };
         }
-        //public Task<RefreshResponseDto> RefreshAsync(string refreshToken)
-        //{
-        //    return _refreshTokenService.RefreshAsync(refreshToken);
-        //}
     }
 }
