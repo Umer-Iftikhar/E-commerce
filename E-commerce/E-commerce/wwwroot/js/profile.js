@@ -138,11 +138,6 @@ async function openProfileSidebar() {
 
             initializeProfileEditor();
 
-            // --------------------------- //
-            document.getElementById("sidebarLogoutForm")?.addEventListener("submit", (e) => {
-                e.preventDefault();
-                console.log("logout form submitted unexpectedly");
-            });
         }
         catch (error) {
 
@@ -207,7 +202,7 @@ async function uploadProfilePicture() {
         button.disabled = true;
         button.innerHTML = "Uploading...";
 
-        const response = await fetch("/Profile/UpdateProfilePicture", {
+        const response = await fetch("/Profile/UpdateProfile", {
             method: "POST",
             headers: {
                 "RequestVerificationToken": getCsrfToken()
@@ -312,23 +307,25 @@ async function updateProfile() {
 
     try {
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showToast("Please enter a valid email address.", "warning");
+            return;
+        }
+
         saveButton.disabled = true;
         saveButton.innerText = "Saving...";
 
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("email", email);
+
         const response = await fetch("/Profile/UpdateProfile", {
-
             method: "POST",
-
             headers: {
-                "Content-Type": "application/json",
                 "RequestVerificationToken": getCsrfToken()
             },
-
-            body: JSON.stringify({
-                name,
-                email
-            })
-
+            body: formData
         });
 
         const result = await response.json();
@@ -351,8 +348,6 @@ async function updateProfile() {
             });
             window.location.href = "/Auth/Login";
         }, 3000);
-
-        
 
     }
     catch (error) {

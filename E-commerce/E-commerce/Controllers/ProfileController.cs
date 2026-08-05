@@ -42,23 +42,11 @@ namespace E_commerce.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequestDto request)
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileRequestDto request, IFormFile? profileImage)
         {
             request.UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var response = await _profileService.UpdateProfileAsync(request);
-
-            return Json(response);
-        }
-
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfilePicture(IFormFile profileImage)
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-            var response = await _profileService.UpdateProfilePictureAsync(userId, profileImage);
+            var response = await _profileService.UpdateProfileAsync(request, profileImage);
 
             return Json(response);
         }

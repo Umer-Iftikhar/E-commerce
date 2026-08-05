@@ -70,41 +70,36 @@ namespace E_commerce.Service.Implementations
             return image;
         }
 
-        public async Task<SpResponseDto> UpdateProfileAsync(UpdateProfileRequestDto request)
+        public async Task<SpResponseDto> UpdateProfileAsync(UpdateProfileRequestDto request, IFormFile? image = null)
         {
+            if (image is not null)
+            {
+                var imageResponse = await _imageService.SaveAvatarAsync(image);
+                if (imageResponse.ResponseCode != 200)
+                {
+                    return imageResponse;
+                }
+                    
+                request.ProfileImagePath = imageResponse.FilePath;
+            }
+
             using var connection = _context.CreateConnection();
 
             var response = await connection.QuerySingleAsync<SpResponseDto>(
                 StoredProcedures.UpdateProfile,
-                request,
+                new
+                {
+                    UserId = request.UserId,
+                    Name = request.Name,
+                    Email = request.Email,
+                    ProfileImagePath = request.ProfileImagePath,
+                },
                 commandType: CommandType.StoredProcedure);
 
             return response;
         }
 
-        public async Task<SpResponseDto> UpdateProfilePictureAsync(
-            int userId,
-            IFormFile image)
-        {
-            var imageResponse = await _imageService.SaveAvatarAsync(image);
-
-            if (imageResponse.ResponseCode != 200)
-            {
-                return imageResponse;
-            }
-
-            using var connection = _context.CreateConnection();
-
-            return await connection.QuerySingleAsync<SpResponseDto>(
-                StoredProcedures.UpdateProfilePicture,
-                new
-                {
-                    UserId = userId,
-                    ProfileImagePath = imageResponse.FilePath
-                },
-                commandType: CommandType.StoredProcedure);
-        }
-
+        
         public async Task<SpResponseDto> ChangePasswordAsync(ChangePasswordRequestDto request)
         {
             var currentHash = await GetPasswordHashAsync(request.UserId);
