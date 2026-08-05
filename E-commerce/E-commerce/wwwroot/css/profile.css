@@ -56,3 +56,7 @@
 #profileImageInput {
     margin-bottom: .75rem;
 }
+
+.toast-container {
+    z-index: 1060;
+}

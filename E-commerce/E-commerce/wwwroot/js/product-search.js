@@ -1,6 +1,4 @@
-﻿console.log("product-search.js loaded");
-
-
+﻿
 const dateInput = document.getElementById("CreatedDate");
 const searchButton = document.getElementById("btnSearch");
 const productContainer = document.getElementById("productContainer");

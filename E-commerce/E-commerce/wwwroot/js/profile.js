@@ -1,4 +1,8 @@
-﻿document.addEventListener("DOMContentLoaded", () => {
+﻿let originalProfileName = "";
+let originalProfileEmail = "";
+
+
+document.addEventListener("DOMContentLoaded", () => {
     initializeChangePassword();
     initializeProfileSidebar();
 });
@@ -132,6 +136,13 @@ async function openProfileSidebar() {
 
             profileSidebar.innerHTML = await response.text();
 
+            initializeProfileEditor();
+
+            // --------------------------- //
+            document.getElementById("sidebarLogoutForm")?.addEventListener("submit", (e) => {
+                e.preventDefault();
+                console.log("logout form submitted unexpectedly");
+            });
         }
         catch (error) {
 
@@ -246,4 +257,116 @@ async function refreshProfileSidebar() {
     }
 
     profileSidebar.innerHTML = await response.text();
+}
+
+function initializeProfileEditor() {
+
+    const nameInput = document.getElementById("profileName");
+    const emailInput = document.getElementById("profileEmail");
+
+    if (!nameInput || !emailInput) {
+        return;
+    }
+
+    originalProfileName = nameInput.value;
+    originalProfileEmail = emailInput.value;
+
+    nameInput.addEventListener("input", toggleSaveProfileButton);
+    emailInput.addEventListener("input", toggleSaveProfileButton);
+
+    const saveButton = document.getElementById("saveProfileBtn");
+
+    if (saveButton) {
+        saveButton.addEventListener("click", updateProfile);
+    }
+}
+
+function toggleSaveProfileButton() {
+
+    const nameInput = document.getElementById("profileName");
+    const emailInput = document.getElementById("profileEmail");
+    const saveButton = document.getElementById("saveProfileBtn");
+
+    if (!nameInput || !emailInput || !saveButton) {
+        return;
+    }
+
+    const hasChanges = nameInput.value !== originalProfileName || emailInput.value !== originalProfileEmail;
+
+    saveButton.classList.toggle("d-none", !hasChanges);
+}
+
+async function updateProfile() {
+
+    const nameInput = document.getElementById("profileName");
+    const emailInput = document.getElementById("profileEmail");
+    const saveButton = document.getElementById("saveProfileBtn");
+
+    const name = nameInput.value.trim();
+    const email = emailInput.value.trim();
+
+    if (!name || !email) {
+        showToast("Please fill in all fields.", "warning");
+        return;
+    }
+
+    try {
+
+        saveButton.disabled = true;
+        saveButton.innerText = "Saving...";
+
+        const response = await fetch("/Profile/UpdateProfile", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "RequestVerificationToken": getCsrfToken()
+            },
+
+            body: JSON.stringify({
+                name,
+                email
+            })
+
+        });
+
+        const result = await response.json();
+
+        showToast(result.responseMessage, result.responseCode === 200 ? "success" : "error");
+
+        if (result.responseCode !== 200) {
+            return;
+        }
+
+        const toastEl = document.getElementById("appToast");
+        toastEl.classList.add("show");
+
+        setTimeout(async () => {
+            await fetch("/Auth/Logout", {
+                method: "POST",
+                headers: {
+                    "RequestVerificationToken": getCsrfToken()
+                }
+            });
+            window.location.href = "/Auth/Login";
+        }, 3000);
+
+        
+
+    }
+    catch (error) {
+
+        console.error(error);
+
+        showToast(
+            "Something went wrong. Please try again.",
+            "error"
+        );
+    }
+    finally {
+
+        saveButton.disabled = false;
+        saveButton.innerText = "Save Changes";
+    }
 }

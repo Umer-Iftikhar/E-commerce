@@ -2,7 +2,6 @@
 using E_commerce.Services.Interfaces;
 using E_commerce.Settings;
 using Microsoft.Extensions.Options;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace E_commerce.Services.Implementations
 {
@@ -21,9 +20,6 @@ namespace E_commerce.Services.Implementations
 
         public async Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image)
         {
-            //var maxSize = _imageStorageSettings.MaxFileSizeBytes;
-            //var fileSize = image.Length;
-
             var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
 
             if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")

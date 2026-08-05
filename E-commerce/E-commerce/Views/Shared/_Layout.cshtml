@@ -1,4 +1,10 @@
-﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+﻿@using E_commerce.Constants
+@using System.Security.Claims
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    var profileImage = User.FindFirstValue(ClaimConstants.ProfileImagePath);
+}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -49,7 +55,15 @@
                             </li>
                             <li class="nav-item">
                                 <button type="button" id="profileButton" class="btn btn-link nav-link text-dark">
-                                    <img id="navbarProfileImage" src="~/icons/person-circle.svg" alt="Profile" style="width:28px;height:28px;border-radius:50%;" />
+                                    @if (!string.IsNullOrEmpty(profileImage))
+                                    {
+                                        <img id="navbarProfileImage"
+                                             src="/@profileImage" alt="Profile" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <img id="navbarProfileImage" src="~/icons/person-circle.svg" alt="Profile" style="width:28px;height:28px;" />
+                                    }
                                 </button>
                             </li>
                             }
