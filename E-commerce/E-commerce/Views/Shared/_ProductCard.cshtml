@@ -12,10 +12,8 @@
         }
         else
         {
-            <img src="@Model.CoverImagePath"
-                 class="card-img-top"
-                 alt="@Model.Name"
-                 style="height:220px; object-fit:cover;" />
+            <img src="@Model.CoverImagePath" class="card-img-top"
+                 alt="@Model.Name" style="height:220px; object-fit:cover;" />
         }
 
         <div class="card-body d-flex flex-column">
@@ -34,14 +32,10 @@
 
             <div class="d-grid gap-2 mt-3">
 
-                <a asp-controller="Product"
-                   asp-action="Details"
-                   asp-route-id="@Model.Id"
+                <a asp-controller="Product" asp-action="Details" asp-route-id="@Model.Id"
                    class="btn btn-outline-primary d-flex align-items-center justify-content-center gap-2">
 
-                    <img src="~/icons/search.svg"
-                         class="icon"
-                         alt="">
+                    <img src="~/icons/search.svg" class="icon" alt="">
 
                     <span>View Details</span>
 
