@@ -3,20 +3,8 @@ let originalProfileEmail = "";
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    initializeChangePassword();
     initializeProfileSidebar();
 });
-
-function initializeChangePassword() {
-
-    const form = document.getElementById("changePasswordForm");
-
-    if (!form) {
-        return;
-    }
-
-    form.addEventListener("submit", submitChangePassword);
-}
 
 function initializeProfileSidebar() {
 
@@ -40,77 +28,6 @@ function initializeProfileSidebar() {
 
         await uploadProfilePicture();
     });
-}
-
-async function submitChangePassword(event) {
-
-    event.preventDefault();
-
-    const form = event.target;
-
-    const currentPassword = form.querySelector("#CurrentPassword").value;
-    const newPassword = form.querySelector("#NewPassword").value;
-    const confirmPassword = form.querySelector("#ConfirmPassword").value;
-
-    if (!currentPassword || !newPassword || !confirmPassword) {
-        showToast("Please fill in all fields.", "warning");
-        return;
-    }
-
-    if (newPassword !== confirmPassword) {
-        showToast("New password and confirmation do not match.", "warning");
-        return;
-    }
-
-    const button = form.querySelector("button[type='submit']");
-
-    try {
-
-        button.disabled = true;
-        button.innerHTML = "Changing...";
-
-        const response = await fetch("/Profile/ChangePassword", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "RequestVerificationToken": getCsrfToken()
-            },
-            body: JSON.stringify({
-                currentPassword,
-                newPassword
-            })
-        });
-
-        const result = await response.json();
-
-        showToast(
-            result.responseMessage,
-            result.responseCode === 200 ? "success" : "error"
-        );
-
-        if (result.responseCode === 200) {
-
-            form.reset();
-
-            setTimeout(() => {
-                window.location.href = "/Profile/ChangePassword";
-            }, 1500);
-        }
-    }
-    catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "Something went wrong. Please try again.",
-            "error"
-        );
-    }
-    finally {
-
-        button.disabled = false;
-        button.innerText = "Change Password";
-    }
 }
 
 async function openProfileSidebar() {

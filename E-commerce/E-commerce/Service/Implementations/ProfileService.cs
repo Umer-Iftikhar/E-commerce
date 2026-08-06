@@ -3,6 +3,7 @@ using E_commerce.Constants;
 using E_commerce.Data;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
+using E_commerce.Models;
 using E_commerce.Service.Interfaces;
 using E_commerce.Services.Interfaces;
 using System.Data;
@@ -61,7 +62,12 @@ namespace E_commerce.Service.Implementations
 
             if (image is null)
             {
-                throw new InvalidOperationException("User not found.");
+                return new ImagePathResponseDto
+                {
+                    ResponseCode = response.ResponseCode,
+                    ResponseMessage = response.ResponseMessage,
+                    FilePath = null
+                };
             }
 
             image.ResponseCode = response.ResponseCode;
@@ -72,15 +78,22 @@ namespace E_commerce.Service.Implementations
 
         public async Task<SpResponseDto> UpdateProfileAsync(UpdateProfileRequestDto request, IFormFile? image = null)
         {
+            string? oldImagePath = null;
+            string? newImagePath = null;
+
             if (image is not null)
             {
-                var imageResponse = await _imageService.SaveAvatarAsync(image);
+                var currentImage = await GetProfileImageAsync(request.UserId);
+                oldImagePath = currentImage.FilePath;
+
+                var imageResponse = await _imageService.SaveAvatarAsync(image, request.UserId);
                 if (imageResponse.ResponseCode != 200)
                 {
                     return imageResponse;
                 }
-                    
-                request.ProfileImagePath = imageResponse.FilePath;
+
+                newImagePath = imageResponse.FilePath;
+                request.ProfileImagePath = newImagePath;
             }
 
             using var connection = _context.CreateConnection();
@@ -95,6 +108,18 @@ namespace E_commerce.Service.Implementations
                     ProfileImagePath = request.ProfileImagePath,
                 },
                 commandType: CommandType.StoredProcedure);
+
+            if (image is not null)
+            {
+                if (response.ResponseCode == 200)
+                {
+                    await _imageService.DeleteImageAsync(oldImagePath);
+                }
+                else
+                {
+                    await _imageService.DeleteImageAsync(newImagePath);
+                }
+            }
 
             return response;
         }

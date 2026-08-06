@@ -4,6 +4,7 @@ using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
 using E_commerce.Service.Interfaces;
 using E_commerce.Settings;
+using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -93,23 +94,39 @@ namespace E_commerce.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             try
             {
-                request.UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                var request = new ChangePasswordRequestDto
+                {
+                    UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+                    CurrentPassword = model.CurrentPassword,
+                    NewPassword = model.NewPassword
+                };
 
                 var response = await _profileService.ChangePasswordAsync(request);
 
-                return Json(response);
+                if(response.ResponseCode == 200)
+                {
+                    TempData["Success"] = response.ResponseMessage;
+
+                    return RedirectToAction("Index", "Product");
+                }
+
+                ModelState.AddModelError(string.Empty, response.ResponseMessage);
+                return View(new ChangePasswordViewModel());
+
             }
             catch (Exception ex)
             {
-                return BadRequest(new SpResponseDto
-                {
-                    ResponseCode = 400,
-                    ResponseMessage = ex.Message
-                });
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(new ChangePasswordViewModel());
             }
         }
         [HttpGet]
