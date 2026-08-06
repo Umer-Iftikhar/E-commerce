@@ -222,6 +222,12 @@ async function uploadProfilePicture() {
         }
 
         await refreshProfileSidebar();
+
+
+        const newImage = document.querySelector(".profile-avatar")?.src;
+        if (newImage) {
+            document.getElementById("navbarProfileImage").src = newImage;
+        }
     }
     catch (error) {
 
@@ -336,19 +342,7 @@ async function updateProfile() {
             return;
         }
 
-        const toastEl = document.getElementById("appToast");
-        toastEl.classList.add("show");
-
-        setTimeout(async () => {
-            await fetch("/Auth/Logout", {
-                method: "POST",
-                headers: {
-                    "RequestVerificationToken": getCsrfToken()
-                }
-            });
-            window.location.href = "/Auth/Login";
-        }, 3000);
-
+        await refreshProfileSidebar();
     }
     catch (error) {
 

@@ -1,8 +1,12 @@
-﻿using E_commerce.DTOs.Request;
+﻿using E_commerce.Constants;
+using E_commerce.DTOs;
+using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
 using E_commerce.Service.Interfaces;
+using E_commerce.Settings;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -12,12 +16,18 @@ namespace E_commerce.Controllers
     public class ProfileController : Controller
     {
         private readonly IProfileService _profileService;
+        private readonly ITokenService _tokenService;
+        private readonly JwtConfig _jwtConfig;
 
-        public ProfileController(IProfileService profileService)
+        public ProfileController(IProfileService profileService, 
+            ITokenService tokenService, 
+            IOptions<JwtConfig> jwtConfig)
         {
             _profileService = profileService;
+            _tokenService = tokenService;
+            _jwtConfig = jwtConfig.Value;
         }
-
+        
         [HttpGet]
         public async Task<IActionResult> GetProfileImage()
         {
@@ -48,6 +58,28 @@ namespace E_commerce.Controllers
 
             var response = await _profileService.UpdateProfileAsync(request, profileImage);
 
+            if (response.ResponseCode == 200 && (request.Name != null || request.Email != null))
+            {
+                var claims = new TokenClaimsDto
+                {
+                    Id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+                    Name = request.Name ?? User.FindFirstValue(JwtRegisteredClaimNames.Name)!,
+                    Email = request.Email ?? User.FindFirstValue(ClaimTypes.Email)!,
+                    Role = User.FindFirstValue(ClaimTypes.Role)!,
+                    ProfileImagePath = User.FindFirstValue(ClaimConstants.ProfileImagePath)
+                };
+
+                var newToken = _tokenService.GenerateToken(claims);
+
+                Response.Cookies.Append(CookieConstants.AccessToken, newToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(_jwtConfig.ExpiryMinutes)
+                });
+            }
+
             return Json(response);
         }
 
@@ -65,8 +97,7 @@ namespace E_commerce.Controllers
         {
             try
             {
-                request.UserId = int.Parse(
-                    User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                request.UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
                 var response = await _profileService.ChangePasswordAsync(request);
 
