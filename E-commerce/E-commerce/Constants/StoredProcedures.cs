@@ -51,5 +51,9 @@
         public const string UpdateProfilePicture = "dbo.UpdateProfilePicture";
         public const string ChangePassword = "dbo.ChangePassword";
         public const string GetProfileImage = "dbo.GetProfileImage";
+
+
+        // Dashboard
+        public const string GetDashboardStats = "dbo.GetDashboardStats";
     }
 }

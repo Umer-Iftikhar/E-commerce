@@ -7,9 +7,11 @@ namespace E_commerce.Controllers
     public class ProductController : Controller
     {
         private readonly IProductService _productService;
-        public ProductController(IProductService productService)
+        private readonly ICategoryService _categoryService;
+        public ProductController(IProductService productService, ICategoryService categoryService)
         {
             _productService = productService;
+            _categoryService = categoryService;
         }
 
         [HttpGet]
@@ -22,7 +24,7 @@ namespace E_commerce.Controllers
                 return View("Error");
             }
 
-            var categoriesResponse = await _productService.GetAllCategoriesAsync();
+            var categoriesResponse = await _categoryService.GetAllCategoriesAsync();
 
             if (categoriesResponse.ResponseCode != 200)
             {

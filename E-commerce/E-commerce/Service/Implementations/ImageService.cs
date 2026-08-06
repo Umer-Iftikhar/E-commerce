@@ -18,11 +18,30 @@ namespace E_commerce.Services.Implementations
             _imageStorageSettings = imageStorageSettings.Value;
         }
 
-        public async Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image)
+        public Task DeleteImageAsync(string? relativePath)
+        {
+            if (string.IsNullOrWhiteSpace(relativePath))
+            {
+                return Task.CompletedTask;
+            }
+
+            var fullPath = Path.Combine(_environment.WebRootPath, relativePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+            if (File.Exists(fullPath))
+            {
+                File.Delete(fullPath);
+            }
+
+            return Task.CompletedTask;
+        }
+
+        private async Task<ImagePathResponseDto> SaveAvatarInternalAsync(IFormFile image, int? userId)
         {
             var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
 
-            if (extension != ".jpg" && extension != ".jpeg" && extension != ".png")
+            if (extension != ".jpg" &&
+                extension != ".jpeg" &&
+                extension != ".png")
             {
                 return new ImagePathResponseDto
                 {
@@ -42,7 +61,21 @@ namespace E_commerce.Services.Implementations
 
             var fileName = $"{Guid.NewGuid()}{extension}";
 
-            var folderPath = Path.Combine(_environment.WebRootPath, _imageStorageSettings.AvatarsFolder);
+            string folderPath;
+            string relativePath;
+
+            if (userId.HasValue)
+            {
+                folderPath = Path.Combine(_environment.WebRootPath, _imageStorageSettings.AvatarsFolder, userId.Value.ToString());
+
+                relativePath = Path.Combine(_imageStorageSettings.AvatarsFolder, userId.Value.ToString(), fileName);
+            }
+            else
+            {
+                folderPath = Path.Combine(_environment.WebRootPath, _imageStorageSettings.AvatarsFolder);
+
+                relativePath = Path.Combine(_imageStorageSettings.AvatarsFolder, fileName);
+            }
 
             Directory.CreateDirectory(folderPath);
 
@@ -53,13 +86,68 @@ namespace E_commerce.Services.Implementations
                 await image.CopyToAsync(stream);
             }
 
-            var relativePath = Path.Combine(_imageStorageSettings.AvatarsFolder,fileName).Replace("\\", "/");
+            return new ImagePathResponseDto
+            {
+                ResponseCode = 200,
+                ResponseMessage = "Image Saved Successfully",
+                FilePath = relativePath.Replace("\\", "/")
+            };
+        }
+
+        public async Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image, int userId)
+        {
+            return await SaveAvatarInternalAsync(image, userId);
+        }
+
+        public async Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image)
+        {
+            return await SaveAvatarInternalAsync(image, null);
+        }
+
+        public async Task<ImagePathResponseDto> SaveProductImageAsync(IFormFile image)
+        {
+            var extension = Path.GetExtension(image.FileName).ToLowerInvariant();
+
+            if (extension != ".jpg" &&
+                extension != ".jpeg" &&
+                extension != ".png")
+            {
+                return new ImagePathResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = "Invalid image format"
+                };
+            }
+
+            if (image.Length > _imageStorageSettings.MaxFileSizeBytes)
+            {
+                return new ImagePathResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = "Image size exceeds limit"
+                };
+            }
+
+            var fileName = $"{Guid.NewGuid()}{extension}";
+
+            var folderPath = Path.Combine(_environment.WebRootPath, _imageStorageSettings.ProductsFolder);
+
+            Directory.CreateDirectory(folderPath);
+
+            var filePath = Path.Combine(folderPath, fileName);
+
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await image.CopyToAsync(stream);
+            }
+
+            var relativePath = Path.Combine(_imageStorageSettings.ProductsFolder, fileName);
 
             return new ImagePathResponseDto
             {
                 ResponseCode = 200,
                 ResponseMessage = "Image Saved Successfully",
-                FilePath = relativePath
+                FilePath = relativePath.Replace("\\", "/")
             };
         }
     }
