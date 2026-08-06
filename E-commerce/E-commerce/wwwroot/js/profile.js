@@ -3,20 +3,8 @@ let originalProfileEmail = "";
 
 
 document.addEventListener("DOMContentLoaded", () => {
-    initializeChangePassword();
     initializeProfileSidebar();
 });
-
-function initializeChangePassword() {
-
-    const form = document.getElementById("changePasswordForm");
-
-    if (!form) {
-        return;
-    }
-
-    form.addEventListener("submit", submitChangePassword);
-}
 
 function initializeProfileSidebar() {
 
@@ -40,77 +28,6 @@ function initializeProfileSidebar() {
 
         await uploadProfilePicture();
     });
-}
-
-async function submitChangePassword(event) {
-
-    event.preventDefault();
-
-    const form = event.target;
-
-    const currentPassword = form.querySelector("#CurrentPassword").value;
-    const newPassword = form.querySelector("#NewPassword").value;
-    const confirmPassword = form.querySelector("#ConfirmPassword").value;
-
-    if (!currentPassword || !newPassword || !confirmPassword) {
-        showToast("Please fill in all fields.", "warning");
-        return;
-    }
-
-    if (newPassword !== confirmPassword) {
-        showToast("New password and confirmation do not match.", "warning");
-        return;
-    }
-
-    const button = form.querySelector("button[type='submit']");
-
-    try {
-
-        button.disabled = true;
-        button.innerHTML = "Changing...";
-
-        const response = await fetch("/Profile/ChangePassword", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "RequestVerificationToken": getCsrfToken()
-            },
-            body: JSON.stringify({
-                currentPassword,
-                newPassword
-            })
-        });
-
-        const result = await response.json();
-
-        showToast(
-            result.responseMessage,
-            result.responseCode === 200 ? "success" : "error"
-        );
-
-        if (result.responseCode === 200) {
-
-            form.reset();
-
-            setTimeout(() => {
-                window.location.href = "/Profile/ChangePassword";
-            }, 1500);
-        }
-    }
-    catch (error) {
-
-        console.error(error);
-
-        showToast(
-            "Something went wrong. Please try again.",
-            "error"
-        );
-    }
-    finally {
-
-        button.disabled = false;
-        button.innerText = "Change Password";
-    }
 }
 
 async function openProfileSidebar() {
@@ -138,11 +55,6 @@ async function openProfileSidebar() {
 
             initializeProfileEditor();
 
-            // --------------------------- //
-            document.getElementById("sidebarLogoutForm")?.addEventListener("submit", (e) => {
-                e.preventDefault();
-                console.log("logout form submitted unexpectedly");
-            });
         }
         catch (error) {
 
@@ -207,7 +119,7 @@ async function uploadProfilePicture() {
         button.disabled = true;
         button.innerHTML = "Uploading...";
 
-        const response = await fetch("/Profile/UpdateProfilePicture", {
+        const response = await fetch("/Profile/UpdateProfile", {
             method: "POST",
             headers: {
                 "RequestVerificationToken": getCsrfToken()
@@ -227,6 +139,12 @@ async function uploadProfilePicture() {
         }
 
         await refreshProfileSidebar();
+
+
+        const newImage = document.querySelector(".profile-avatar")?.src;
+        if (newImage) {
+            document.getElementById("navbarProfileImage").src = newImage;
+        }
     }
     catch (error) {
 
@@ -312,23 +230,25 @@ async function updateProfile() {
 
     try {
 
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(email)) {
+            showToast("Please enter a valid email address.", "warning");
+            return;
+        }
+
         saveButton.disabled = true;
         saveButton.innerText = "Saving...";
 
+        const formData = new FormData();
+        formData.append("name", name);
+        formData.append("email", email);
+
         const response = await fetch("/Profile/UpdateProfile", {
-
             method: "POST",
-
             headers: {
-                "Content-Type": "application/json",
                 "RequestVerificationToken": getCsrfToken()
             },
-
-            body: JSON.stringify({
-                name,
-                email
-            })
-
+            body: formData
         });
 
         const result = await response.json();
@@ -339,21 +259,7 @@ async function updateProfile() {
             return;
         }
 
-        const toastEl = document.getElementById("appToast");
-        toastEl.classList.add("show");
-
-        setTimeout(async () => {
-            await fetch("/Auth/Logout", {
-                method: "POST",
-                headers: {
-                    "RequestVerificationToken": getCsrfToken()
-                }
-            });
-            window.location.href = "/Auth/Login";
-        }, 3000);
-
-        
-
+        await refreshProfileSidebar();
     }
     catch (error) {
 

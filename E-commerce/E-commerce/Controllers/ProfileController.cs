@@ -1,8 +1,13 @@
-﻿using E_commerce.DTOs.Request;
+﻿using E_commerce.Constants;
+using E_commerce.DTOs;
+using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
 using E_commerce.Service.Interfaces;
+using E_commerce.Settings;
+using E_commerce.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
@@ -12,12 +17,18 @@ namespace E_commerce.Controllers
     public class ProfileController : Controller
     {
         private readonly IProfileService _profileService;
+        private readonly ITokenService _tokenService;
+        private readonly JwtConfig _jwtConfig;
 
-        public ProfileController(IProfileService profileService)
+        public ProfileController(IProfileService profileService, 
+            ITokenService tokenService, 
+            IOptions<JwtConfig> jwtConfig)
         {
             _profileService = profileService;
+            _tokenService = tokenService;
+            _jwtConfig = jwtConfig.Value;
         }
-
+        
         [HttpGet]
         public async Task<IActionResult> GetProfileImage()
         {
@@ -42,23 +53,33 @@ namespace E_commerce.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfile([FromBody] UpdateProfileRequestDto request)
+        public async Task<IActionResult> UpdateProfile([FromForm] UpdateProfileRequestDto request, IFormFile? profileImage)
         {
             request.UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
-            var response = await _profileService.UpdateProfileAsync(request);
+            var response = await _profileService.UpdateProfileAsync(request, profileImage);
 
-            return Json(response);
-        }
+            if (response.ResponseCode == 200 && (request.Name != null || request.Email != null))
+            {
+                var claims = new TokenClaimsDto
+                {
+                    Id = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+                    Name = request.Name ?? User.FindFirstValue(JwtRegisteredClaimNames.Name)!,
+                    Email = request.Email ?? User.FindFirstValue(ClaimTypes.Email)!,
+                    Role = User.FindFirstValue(ClaimTypes.Role)!,
+                    ProfileImagePath = User.FindFirstValue(ClaimConstants.ProfileImagePath)
+                };
 
+                var newToken = _tokenService.GenerateToken(claims);
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateProfilePicture(IFormFile profileImage)
-        {
-            var userId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
-
-            var response = await _profileService.UpdateProfilePictureAsync(userId, profileImage);
+                Response.Cookies.Append(CookieConstants.AccessToken, newToken, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = true,
+                    SameSite = SameSiteMode.Strict,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(_jwtConfig.ExpiryMinutes)
+                });
+            }
 
             return Json(response);
         }
@@ -73,24 +94,39 @@ namespace E_commerce.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword([FromBody] ChangePasswordRequestDto request)
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
             try
             {
-                request.UserId = int.Parse(
-                    User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+                if (!ModelState.IsValid)
+                {
+                    return View(model);
+                }
+
+                var request = new ChangePasswordRequestDto
+                {
+                    UserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!),
+                    CurrentPassword = model.CurrentPassword,
+                    NewPassword = model.NewPassword
+                };
 
                 var response = await _profileService.ChangePasswordAsync(request);
 
-                return Json(response);
+                if(response.ResponseCode == 200)
+                {
+                    TempData["Success"] = response.ResponseMessage;
+
+                    return RedirectToAction("Index", "Product");
+                }
+
+                ModelState.AddModelError(string.Empty, response.ResponseMessage);
+                return View(new ChangePasswordViewModel());
+
             }
             catch (Exception ex)
             {
-                return BadRequest(new SpResponseDto
-                {
-                    ResponseCode = 400,
-                    ResponseMessage = ex.Message
-                });
+                ModelState.AddModelError(string.Empty, ex.Message);
+                return View(new ChangePasswordViewModel());
             }
         }
         [HttpGet]
