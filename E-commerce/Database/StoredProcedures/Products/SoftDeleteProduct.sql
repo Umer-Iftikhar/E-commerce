@@ -1,7 +1,6 @@
 USE ECommerce;
 GO
 
-
 CREATE OR ALTER PROCEDURE dbo.SoftDeleteProduct
 (
     @ProductId INT
@@ -11,6 +10,8 @@ BEGIN
     SET NOCOUNT ON;
 
     BEGIN TRY
+
+        DECLARE @CoverImagePath NVARCHAR(500);
 
         IF NOT EXISTS
         (
@@ -22,10 +23,16 @@ BEGIN
         BEGIN
             SELECT
                 404 AS ResponseCode,
-                'Product not found.' AS ResponseMessage;
+                'Product not found.' AS ResponseMessage,
+                CAST(NULL AS NVARCHAR(500)) AS CoverImagePath;
 
             RETURN;
         END
+
+        SELECT
+            @CoverImagePath = CoverImagePath
+        FROM dbo.Products
+        WHERE Id = @ProductId;
 
         UPDATE dbo.Products
         SET
@@ -34,14 +41,16 @@ BEGIN
 
         SELECT
             200 AS ResponseCode,
-            'Product deleted successfully.' AS ResponseMessage;
+            'Product deleted successfully.' AS ResponseMessage,
+            @CoverImagePath AS CoverImagePath;
 
     END TRY
     BEGIN CATCH
 
         SELECT
             500 AS ResponseCode,
-            ERROR_MESSAGE() AS ResponseMessage;
+            ERROR_MESSAGE() AS ResponseMessage,
+            CAST(NULL AS NVARCHAR(500)) AS CoverImagePath;
 
     END CATCH
 END

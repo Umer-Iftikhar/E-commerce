@@ -6,6 +6,8 @@
         public const string CreateUser = "dbo.CreateUser";
         public const string GetUserByEmail = "dbo.GetUserByEmail";
         public const string GetUserById = "dbo.GetUserById";
+        public const string GetAllUsers = "dbo.GetAllUsers";
+        public const string SoftDeleteUser = "dbo.SoftDeleteUser";
 
 
         // Refresh Tokens
@@ -16,11 +18,18 @@
 
         // Categories
         public const string GetAllCategories = "dbo.GetAllCategories";
+        public const string UpdateCategory = "dbo.UpdateCategory";
+        public const string CreateCategory = "dbo.CreateCategory";
+        public const string SoftDeleteCategory = "dbo.SoftDeleteCategory";
+        public const string RestoreCategory = "dbo.RestoreCategory";
 
 
         // Products
         public const string GetProducts = "dbo.GetProducts";
         public const string GetProductById = "dbo.GetProductById";
+        public const string CreateProduct = "dbo.CreateProduct";
+        public const string UpdateProduct = "dbo.UpdateProduct";
+        public const string SoftDeleteProduct = "dbo.SoftDeleteProduct";
 
 
         // Cart
