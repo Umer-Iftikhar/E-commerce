@@ -40,5 +40,13 @@ namespace E_commerce.Areas.Admin.Controllers
             return Json(response);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(int id)
+        {
+            var response = await _userService.RestoreUserAsync(id);
+
+            return Json(response);
+        }
     }
 }

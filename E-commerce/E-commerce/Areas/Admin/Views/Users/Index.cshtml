@@ -1,0 +1,140 @@
+﻿@model E_commerce.DTOs.Response.GetUsersResponseDto
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = "Users";
+}
+
+@{
+    var currentUserId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Users</h2>
+</div>
+
+<div class="card shadow-sm">
+
+    <div class="card-body">
+
+        <table class="table table-hover align-middle">
+
+            <thead>
+                <tr>
+                    <th>Profile</th>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Created</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                @if (Model.Users.Any())
+                {
+                    foreach (var user in Model.Users)
+                    {
+                        <tr>
+
+                            <td>
+                                @if (!string.IsNullOrWhiteSpace(user.ProfileImagePath))
+                                {
+                                    <img src="~/@user.ProfileImagePath"
+                                         alt="@user.Name"
+                                         class="rounded-circle"
+                                         style="width:45px;height:45px;object-fit:cover;" />
+                                }
+                                else
+                                {
+                                    <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center"
+                                         style="width:45px;height:45px;">
+                                        @(string.IsNullOrWhiteSpace(user.Name)
+                                            ? "?"
+                                            : user.Name.Substring(0, 1).ToUpper())
+                                    </div>
+                                }
+                            </td>
+
+                            <td>@user.Name</td>
+
+                            <td>@user.Email</td>
+
+                            <td>
+                                @if (user.Role == "Admin")
+                                {
+                                    <span class="badge bg-primary">
+                                        Admin
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary"> @user.Role</span>
+                                }
+                            </td>
+
+                            <td>
+                                @if (user.IsDeleted)
+                                {
+                                    <span class="badge bg-danger">
+                                        Deleted
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-success">
+                                        Active
+                                    </span>
+                                }
+                            </td>
+
+                            <td>
+                                @user.CreatedAt.ToString("dd MMM yyyy")
+                            </td>
+
+                            <td class="text-end">
+
+                                @if (user.Id != currentUserId)
+                                {
+                                    @if (!user.IsDeleted)
+                                    {
+                                        <button class="btn btn-sm btn-outline-danger delete-user-btn" data-id="@user.Id">
+                                            Delete
+                                        </button>
+                                    }
+                                    else
+                                    {
+                                        <button class="btn btn-sm btn-outline-success restore-user-btn" data-id="@user.Id">
+                                            Restore
+                                        </button>
+                                    }
+                                }
+
+                            </td>
+
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="7" class="text-center text-muted">
+                            No users found.
+                        </td>
+                    </tr>
+                }
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script src="~/js/admin/users.js" asp-append-version="true"></script>
+}

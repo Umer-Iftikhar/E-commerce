@@ -10,5 +10,7 @@ namespace E_commerce.Service.Interfaces
         Task<SpResponseDto> CreateProductAsync(CreateProductRequestDto request);
         Task<SpResponseDto> UpdateProductAsync(UpdateProductRequestDto request);
         Task<SpResponseDto> SoftDeleteProductAsync(int productId);
+        Task<GetProductsResponseDto> GetAllProductsAdminAsync();
+        Task<SpResponseDto> RestoreProductAsync(int productId);
     }
 }

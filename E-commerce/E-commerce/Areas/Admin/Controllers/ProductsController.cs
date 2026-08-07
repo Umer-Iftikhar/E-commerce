@@ -39,12 +39,9 @@ namespace E_commerce.Areas.Admin.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> Index(string? searchTerm, int? categoryId, DateOnly? createdDate)
+        public async Task<IActionResult> Index()
         {
-            var response = await _productService.GetProductsAsync(
-                searchTerm,
-                categoryId,
-                createdDate);
+            var response = await _productService.GetAllProductsAdminAsync();
 
             if (response.ResponseCode != 200)
             {
@@ -169,6 +166,15 @@ namespace E_commerce.Areas.Admin.Controllers
         public async Task<IActionResult> Delete(int id)
         {
             var response = await _productService.SoftDeleteProductAsync(id);
+
+            return Json(response);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Restore(int id)
+        {
+            var response = await _productService.RestoreProductAsync(id);
 
             return Json(response);
         }

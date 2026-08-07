@@ -4,7 +4,6 @@ using E_commerce.Data;
 using E_commerce.DTOs;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
-using E_commerce.Models;
 using E_commerce.Service.Interfaces;
 using E_commerce.Services.Interfaces;
 using E_commerce.Settings;
@@ -246,6 +245,19 @@ namespace E_commerce.Service.Implementations
 
             return await connection.QueryFirstAsync<SpResponseDto>(
                 StoredProcedures.SoftDeleteUser,
+                new
+                {
+                    UserId = userId
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<SpResponseDto> RestoreUserAsync(int userId)
+        {
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryFirstAsync<SpResponseDto>(
+                StoredProcedures.RestoreUser,
                 new
                 {
                     UserId = userId

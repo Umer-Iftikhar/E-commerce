@@ -11,20 +11,16 @@ namespace E_commerce.Areas.Admin.Controllers
     public class CategoriesController : Controller
     {
         private readonly ICategoryService _categoryService;
-        private readonly IMapper _mapper;
 
-        public CategoriesController(
-            ICategoryService categoryService,
-            IMapper mapper)
+        public CategoriesController(ICategoryService categoryService)
         {
             _categoryService = categoryService;
-            _mapper = mapper;
         }
 
         [HttpGet]
         public async Task<IActionResult> Index()
         {
-            var response = await _categoryService.GetAllCategoriesAsync();
+            var response = await _categoryService.GetAllCategoriesAdminAsync();
 
             if (response.ResponseCode != 200)
             {
@@ -49,7 +45,10 @@ namespace E_commerce.Areas.Admin.Controllers
                 return View(model);
             }
 
-            var request = _mapper.Map<CreateCategoryRequestDto>(model);
+            var request = new CreateCategoryRequestDto
+            {
+                Name = model.Name
+            };
 
             var response = await _categoryService.CreateCategoryAsync(request);
 
@@ -60,46 +59,32 @@ namespace E_commerce.Areas.Admin.Controllers
             }
 
             TempData["Success"] = response.ResponseMessage;
+
             return RedirectToAction(nameof(Index));
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Edit(int id)
-        {
-            var response = await _categoryService.GetCategoryByIdAsync(id);
-
-            if (response.ResponseCode != 200)
-            {
-                TempData["Error"] = response.ResponseMessage;
-                return RedirectToAction(nameof(Index));
-            }
-
-            var model = _mapper.Map<UpdateCategoryViewModel>(response.Category);
-
-            return View(model);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(UpdateCategoryViewModel model)
+        public async Task<IActionResult> Edit([FromBody] UpdateCategoryViewModel model)
         {
             if (!ModelState.IsValid)
             {
-                return View(model);
+                return Json(new
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = "Invalid request."
+                });
             }
 
-            var request = _mapper.Map<UpdateCategoryRequestDto>(model);
+            var request = new UpdateCategoryRequestDto
+            {
+                CategoryId = model.Id,
+                Name = model.Name
+            };
 
             var response = await _categoryService.UpdateCategoryAsync(request);
 
-            if (response.ResponseCode != 200)
-            {
-                ModelState.AddModelError(string.Empty, response.ResponseMessage);
-                return View(model);
-            }
-
-            TempData["Success"] = response.ResponseMessage;
-            return RedirectToAction(nameof(Index));
+            return Json(response);
         }
 
         [HttpPost]
@@ -108,10 +93,7 @@ namespace E_commerce.Areas.Admin.Controllers
         {
             var response = await _categoryService.SoftDeleteCategoryAsync(id);
 
-            TempData[response.ResponseCode == 200 ? "Success" : "Error"] =
-                response.ResponseMessage;
-
-            return RedirectToAction(nameof(Index));
+            return Json(response);
         }
 
         [HttpPost]
@@ -120,10 +102,7 @@ namespace E_commerce.Areas.Admin.Controllers
         {
             var response = await _categoryService.RestoreCategoryAsync(id);
 
-            TempData[response.ResponseCode == 200 ? "Success" : "Error"] =
-                response.ResponseMessage;
-
-            return RedirectToAction(nameof(Index));
+            return Json(response);
         }
     }
 }

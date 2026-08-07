@@ -198,5 +198,38 @@ namespace E_commerce.Service.Implementations
 
             return response;
         }
+
+        public async Task<GetProductsResponseDto> GetAllProductsAdminAsync()
+        {
+            using var connection = _context.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                StoredProcedures.GetAllProductsAdmin,
+                commandType: CommandType.StoredProcedure);
+
+            var response = await multi.ReadFirstAsync<SpResponseDto>();
+
+            var products = (await multi.ReadAsync<ProductListItemDto>()).ToList();
+
+            return new GetProductsResponseDto
+            {
+                ResponseCode = response.ResponseCode,
+                ResponseMessage = response.ResponseMessage,
+                Products = products
+            };
+        }
+
+        public async Task<SpResponseDto> RestoreProductAsync(int productId)
+        {
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryFirstAsync<SpResponseDto>(
+                StoredProcedures.RestoreProduct,
+                new
+                {
+                    ProductId = productId
+                },
+                commandType: CommandType.StoredProcedure);
+        }
     }
 }

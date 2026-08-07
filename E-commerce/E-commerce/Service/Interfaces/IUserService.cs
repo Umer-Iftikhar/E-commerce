@@ -10,5 +10,6 @@ namespace E_commerce.Service.Interfaces
         Task<SpResponseDto> LogoutAsync(string refreshToken);
         Task<GetUsersResponseDto> GetAllUsersAsync();
         Task<SpResponseDto> SoftDeleteUserAsync(int userId, int currentUserId);
+        Task<SpResponseDto> RestoreUserAsync(int userId);
     }
 }

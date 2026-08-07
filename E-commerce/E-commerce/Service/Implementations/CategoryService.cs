@@ -85,5 +85,25 @@ namespace E_commerce.Service.Implementations
                 },
                 commandType: CommandType.StoredProcedure);
         }
+
+        public async Task<GetCategoriesResponseDto> GetAllCategoriesAdminAsync()
+        {
+            using var connection = _context.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                StoredProcedures.GetAllCategoriesAdmin,
+                commandType: CommandType.StoredProcedure);
+
+            var response = await multi.ReadFirstAsync<SpResponseDto>();
+
+            var categories = (await multi.ReadAsync<CategoryListItemDto>()).ToList();
+
+            return new GetCategoriesResponseDto
+            {
+                ResponseCode = response.ResponseCode,
+                ResponseMessage = response.ResponseMessage,
+                Categories = categories
+            };
+        }
     }
 }
