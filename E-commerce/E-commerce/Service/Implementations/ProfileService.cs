@@ -61,7 +61,12 @@ namespace E_commerce.Service.Implementations
 
             if (image is null)
             {
-                throw new InvalidOperationException("User not found.");
+                return new ImagePathResponseDto
+                {
+                    ResponseCode = response.ResponseCode,
+                    ResponseMessage = response.ResponseMessage,
+                    FilePath = null
+                };
             }
 
             image.ResponseCode = response.ResponseCode;
@@ -70,40 +75,54 @@ namespace E_commerce.Service.Implementations
             return image;
         }
 
-        public async Task<SpResponseDto> UpdateProfileAsync(UpdateProfileRequestDto request)
+        public async Task<SpResponseDto> UpdateProfileAsync(UpdateProfileRequestDto request, IFormFile? image = null)
         {
-            using var connection = _context.CreateConnection();
+            string? oldImagePath = null;
+            string? newImagePath = null;
 
-            var response = await connection.QuerySingleAsync<SpResponseDto>(
-                StoredProcedures.UpdateProfile,
-                request,
-                commandType: CommandType.StoredProcedure);
-
-            return response;
-        }
-
-        public async Task<SpResponseDto> UpdateProfilePictureAsync(
-            int userId,
-            IFormFile image)
-        {
-            var imageResponse = await _imageService.SaveAvatarAsync(image);
-
-            if (imageResponse.ResponseCode != 200)
+            if (image is not null)
             {
-                return imageResponse;
+                var currentImage = await GetProfileImageAsync(request.UserId);
+                oldImagePath = currentImage.FilePath;
+
+                var imageResponse = await _imageService.SaveAvatarAsync(image, request.UserId);
+                if (imageResponse.ResponseCode != 200)
+                {
+                    return imageResponse;
+                }
+
+                newImagePath = imageResponse.FilePath;
+                request.ProfileImagePath = newImagePath;
             }
 
             using var connection = _context.CreateConnection();
 
-            return await connection.QuerySingleAsync<SpResponseDto>(
-                StoredProcedures.UpdateProfilePicture,
+            var response = await connection.QuerySingleAsync<SpResponseDto>(
+                StoredProcedures.UpdateProfile,
                 new
                 {
-                    UserId = userId,
-                    ProfileImagePath = imageResponse.FilePath
+                    UserId = request.UserId,
+                    Name = request.Name,
+                    Email = request.Email,
+                    ProfileImagePath = request.ProfileImagePath,
                 },
                 commandType: CommandType.StoredProcedure);
+
+            if (image is not null)
+            {
+                if (response.ResponseCode == 200)
+                {
+                    await _imageService.DeleteImageAsync(oldImagePath);
+                }
+                else
+                {
+                    await _imageService.DeleteImageAsync(newImagePath);
+                }
+            }
+
+            return response;
         }
+
 
         public async Task<SpResponseDto> ChangePasswordAsync(ChangePasswordRequestDto request)
         {

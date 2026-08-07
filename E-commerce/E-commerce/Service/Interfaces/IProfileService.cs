@@ -7,8 +7,7 @@ namespace E_commerce.Service.Interfaces
     {
         Task<string?> GetPasswordHashAsync(int userId);
         Task<ImagePathResponseDto> GetProfileImageAsync(int userId);
-        Task<SpResponseDto> UpdateProfileAsync(UpdateProfileRequestDto request);
-        Task<SpResponseDto> UpdateProfilePictureAsync(int userId, IFormFile image);
+        Task<SpResponseDto> UpdateProfileAsync(UpdateProfileRequestDto request, IFormFile? image = null);
         Task<SpResponseDto> ChangePasswordAsync(ChangePasswordRequestDto request);
     }
 }

@@ -30,9 +30,7 @@ builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<ICheckoutService, CheckoutService>();
 builder.Services.AddScoped<IProfileService, ProfileService>();
 builder.Services.AddScoped<ICategoryService, CategoryService>();
-
-
-//builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
 
 var jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtConfig>()!;

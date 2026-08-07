@@ -1,5 +1,6 @@
 ﻿@using E_commerce.Constants
 @using System.Security.Claims
+@using System.Text.Json
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
 
 @{
@@ -135,6 +136,22 @@
     <script src="~/js/site.js" asp-append-version="true"></script>
     <script src="~/js/cart.js" asp-append-version="true"></script>
     <script src="~/js/profile.js" asp-append-version="true"></script>
+
+    @if (TempData["Success"] is string success)
+    {
+        <script>
+                document.addEventListener("DOMContentLoaded", () =>
+                    showToast(@Html.Raw(JsonSerializer.Serialize(success)), "success"));
+        </script>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <script>
+                document.addEventListener("DOMContentLoaded", () =>
+                    showToast(@Html.Raw(JsonSerializer.Serialize(error)), "error"));
+        </script>
+    }
 
     @await RenderSectionAsync("Scripts", required: false)
     @await RenderSectionAsync("Styles", required: false)

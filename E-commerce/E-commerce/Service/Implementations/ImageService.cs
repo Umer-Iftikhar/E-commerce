@@ -1,4 +1,5 @@
 ﻿using E_commerce.DTOs.Response;
+using E_commerce.Models;
 using E_commerce.Services.Interfaces;
 using E_commerce.Settings;
 using Microsoft.Extensions.Options;
@@ -86,6 +87,7 @@ namespace E_commerce.Services.Implementations
                 await image.CopyToAsync(stream);
             }
 
+<<<<<<< HEAD
             return new ImagePathResponseDto
             {
                 ResponseCode = 200,
@@ -143,12 +145,24 @@ namespace E_commerce.Services.Implementations
 
             var relativePath = Path.Combine(_imageStorageSettings.ProductsFolder, fileName);
 
+=======
+>>>>>>> 742f409b1551415fcb5be17116311f7822aeeeed
             return new ImagePathResponseDto
             {
                 ResponseCode = 200,
                 ResponseMessage = "Image Saved Successfully",
                 FilePath = relativePath.Replace("\\", "/")
             };
+        }
+
+        public async Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image, int userId)
+        {
+            return await SaveAvatarInternalAsync(image, userId);
+        }
+
+        public async Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image)
+        {
+            return await SaveAvatarInternalAsync(image, null);
         }
     }
 }

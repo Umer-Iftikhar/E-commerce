@@ -41,6 +41,36 @@ namespace E_commerce.Service.Implementations
             _environment = environment;
         }
 
+        public async Task<GetUsersResponseDto> GetAllUsersAsync()
+        {
+            using var connection = _context.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                StoredProcedures.GetAllUsers,
+                commandType: CommandType.StoredProcedure);
+
+            var response = await multi.ReadSingleAsync<SpResponseDto>();
+
+            if (response.ResponseCode != 200)
+            {
+                return new GetUsersResponseDto
+                {
+                    ResponseCode = response.ResponseCode,
+                    ResponseMessage = response.ResponseMessage,
+                    Users = new List<UserListItemDto>()
+                };
+            }
+
+            var users = (await multi.ReadAsync<UserListItemDto>()).ToList();
+
+            return new GetUsersResponseDto
+            {
+                ResponseCode = response.ResponseCode,
+                ResponseMessage = response.ResponseMessage,
+                Users = users
+            };
+        }
+
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
         {
             using var connection = _context.CreateConnection();
@@ -199,6 +229,28 @@ namespace E_commerce.Service.Implementations
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
+        }
+
+        public async Task<SpResponseDto> SoftDeleteUserAsync(int userId, int currentUserId)
+        {
+            if (userId == currentUserId)
+            {
+                return new SpResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = "You cannot delete your own account."
+                };
+            }
+
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryFirstAsync<SpResponseDto>(
+                StoredProcedures.SoftDeleteUser,
+                new
+                {
+                    UserId = userId
+                },
+                commandType: CommandType.StoredProcedure);
         }
     }
 }

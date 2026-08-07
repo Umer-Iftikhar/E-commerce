@@ -4,6 +4,9 @@ using E_commerce.Data;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
 using E_commerce.Service.Interfaces;
+using E_commerce.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using System.Data;
 
 namespace E_commerce.Service.Implementations
@@ -11,6 +14,7 @@ namespace E_commerce.Service.Implementations
     public class CategoryService : ICategoryService
     {
         private readonly DapperContext _context;
+
         public CategoryService(DapperContext context)
         {
             _context = context;
@@ -46,13 +50,13 @@ namespace E_commerce.Service.Implementations
             };
         }
 
-        public async Task<SpResponseDto> RestoreCategoryAsync(int categoryId)
+        public async Task<SpResponseDto> UpdateCategoryAsync(UpdateCategoryRequestDto request)
         {
             using var connection = _context.CreateConnection();
 
             return await connection.QueryFirstAsync<SpResponseDto>(
-                StoredProcedures.RestoreCategory,
-                new { CategoryId = categoryId },
+                StoredProcedures.UpdateCategory,
+                request,
                 commandType: CommandType.StoredProcedure);
         }
 
@@ -62,17 +66,23 @@ namespace E_commerce.Service.Implementations
 
             return await connection.QueryFirstAsync<SpResponseDto>(
                 StoredProcedures.SoftDeleteCategory,
-                new { CategoryId = categoryId },
+                new
+                {
+                    CategoryId = categoryId
+                },
                 commandType: CommandType.StoredProcedure);
         }
 
-        public async Task<SpResponseDto> UpdateCategoryAsync(UpdateCategoryRequestDto request)
+        public async Task<SpResponseDto> RestoreCategoryAsync(int categoryId)
         {
             using var connection = _context.CreateConnection();
 
             return await connection.QueryFirstAsync<SpResponseDto>(
-                StoredProcedures.UpdateCategory,
-                request,
+                StoredProcedures.RestoreCategory,
+                new
+                {
+                    CategoryId = categoryId
+                },
                 commandType: CommandType.StoredProcedure);
         }
     }
