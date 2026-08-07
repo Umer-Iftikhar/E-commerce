@@ -1,7 +1,6 @@
 USE ECommerce;
 GO
 
-
 CREATE OR ALTER PROCEDURE dbo.UpdateProduct
 (
     @ProductId INT,
@@ -9,7 +8,8 @@ CREATE OR ALTER PROCEDURE dbo.UpdateProduct
     @Name VARCHAR(200),
     @Description VARCHAR(2000) = NULL,
     @Price DECIMAL(18,2),
-    @Stock INT
+    @Stock INT,
+    @CoverImagePath NVARCHAR(500) = NULL
 )
 AS
 BEGIN
@@ -47,13 +47,30 @@ BEGIN
             RETURN;
         END
 
+        IF @Price <= 0
+        BEGIN
+            SELECT
+                400 AS ResponseCode,
+                  'Price must be greater than zero.' AS ResponseMessage;
+            RETURN;
+        END
+
+        IF @Stock < 0
+        BEGIN
+            SELECT
+                400 AS ResponseCode,
+                 'Stock cannot be negative.' AS ResponseMessage;
+            RETURN;
+        END
+
         UPDATE dbo.Products
         SET
             CategoryId = @CategoryId,
             Name = @Name,
             Description = @Description,
             Price = @Price,
-            Stock = @Stock
+            Stock = @Stock,
+            CoverImagePath = COALESCE(@CoverImagePath, CoverImagePath)
         WHERE Id = @ProductId;
 
         SELECT

@@ -3,7 +3,6 @@ using E_commerce.Constants;
 using E_commerce.Data;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
-using E_commerce.Models;
 using E_commerce.Service.Interfaces;
 using E_commerce.Services.Interfaces;
 using System.Data;
@@ -124,7 +123,7 @@ namespace E_commerce.Service.Implementations
             return response;
         }
 
-        
+
         public async Task<SpResponseDto> ChangePasswordAsync(ChangePasswordRequestDto request)
         {
             var currentHash = await GetPasswordHashAsync(request.UserId);

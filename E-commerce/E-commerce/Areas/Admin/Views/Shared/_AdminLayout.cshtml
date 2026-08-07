@@ -1,0 +1,93 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
+    <title>@ViewData["Title"] - Admin Panel</title>
+
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+
+<body>
+    <div class="d-flex min-vh-100">
+
+        <aside class="bg-dark text-white p-3" style="width:260px;">
+            <h4 class="mb-4">Admin Panel</h4>
+
+            <div class="list-group list-group-flush">
+
+                <a asp-area="Admin" asp-controller="Dashboard" asp-action="Index" class="list-group-item list-group-item-action">
+                    Dashboard
+                </a>
+
+                <a asp-area="Admin" asp-controller="Products" asp-action="Index" class="list-group-item list-group-item-action">
+                    Products
+                </a>
+
+                <a asp-area="Admin" asp-controller="Categories" asp-action="Index" class="list-group-item list-group-item-action">
+                    Categories
+                </a>
+
+                <a asp-area="Admin" asp-controller="Users" asp-action="Index" class="list-group-item list-group-item-action">
+                    Users
+                </a>
+
+            </div>
+
+            <hr />
+
+            <form asp-area="" asp-controller="Auth" asp-action="Logout" method="post">
+                @Html.AntiForgeryToken()
+
+                <button type="submit" class="btn btn-danger w-100">
+                    Logout
+                </button>
+            </form>
+        </aside>
+
+        <main class="flex-grow-1 p-4">
+
+            @if (TempData["Success"] is not null)
+            {
+                <div class="alert alert-success">
+                    @TempData["Success"]
+                </div>
+            }
+
+            @if (TempData["Error"] is not null)
+            {
+                <div class="alert alert-danger">
+                    @TempData["Error"]
+                </div>
+            }
+
+            @RenderBody()
+
+        </main>
+
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 p-4" style="z-index:1060;">
+        <div id="appToast" class="toast custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-header">
+                <img id="toastIcon" src="" alt="" class="toast-icon me-2" />
+                <strong id="toastTitle" class="me-auto">Notification</strong>
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+            </div>
+            <div id="toastMessage" class="toast-body"></div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

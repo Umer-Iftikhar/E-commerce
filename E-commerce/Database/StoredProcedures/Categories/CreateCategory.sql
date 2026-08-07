@@ -1,11 +1,9 @@
 USE ECommerce;
 GO
 
-
-
 CREATE OR ALTER PROCEDURE dbo.CreateCategory
 (
-    @Name VARCHAR(100)
+    @Name NVARCHAR(100)
 )
 AS
 BEGIN
@@ -13,14 +11,39 @@ BEGIN
 
     BEGIN TRY
 
+        SET @Name = LTRIM(RTRIM(@Name));
+
+        IF NULLIF(@Name, '') IS NULL
+        BEGIN
+            SELECT
+                400 AS ResponseCode,
+                'Category name is required.' AS ResponseMessage;
+
+            RETURN;
+        END
+
         IF EXISTS
         (
             SELECT 1
             FROM dbo.Categories
             WHERE Name = @Name
-              AND IsDeleted = 0
         )
         BEGIN
+            IF EXISTS
+            (
+                SELECT 1
+                FROM dbo.Categories
+                WHERE Name = @Name
+                  AND IsDeleted = 1
+            )
+            BEGIN
+                SELECT
+                    409 AS ResponseCode,
+                    'Category already exists but is deleted. Restore it instead.' AS ResponseMessage;
+
+                RETURN;
+            END
+
             SELECT
                 409 AS ResponseCode,
                 'Category already exists.' AS ResponseMessage;

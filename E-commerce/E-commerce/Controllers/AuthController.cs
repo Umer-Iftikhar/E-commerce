@@ -1,11 +1,15 @@
 ﻿using E_commerce.Constants;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
+using E_commerce.Models;
 using E_commerce.Service.Interfaces;
 using E_commerce.Settings;
 using E_commerce.ViewModels;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 
 namespace E_commerce.Controllers
 {
@@ -111,6 +115,15 @@ namespace E_commerce.Controllers
             }
 
             SetAuthenticationCookies(response);
+
+            var handler = new JwtSecurityTokenHandler();
+            var token = handler.ReadJwtToken(response.AccessToken);
+            var role = token.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+            if (role == "Admin")
+            {
+                return RedirectToAction("Index", "Dashboard", new { area = "Admin" });
+            }
 
             TempData["SuccessMessage"] = "Login successful.";
             return RedirectToAction("Index", "Product");

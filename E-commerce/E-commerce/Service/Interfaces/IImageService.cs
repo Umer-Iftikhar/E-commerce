@@ -7,5 +7,6 @@ namespace E_commerce.Services.Interfaces
         Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image);
         Task<ImagePathResponseDto> SaveAvatarAsync(IFormFile image, int userId);
         Task DeleteImageAsync(string? relativePath);
+        Task<ImagePathResponseDto> SaveProductImageAsync(IFormFile image);
     }
 }

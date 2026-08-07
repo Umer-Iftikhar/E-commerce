@@ -4,7 +4,6 @@ using E_commerce.Data;
 using E_commerce.DTOs;
 using E_commerce.DTOs.Request;
 using E_commerce.DTOs.Response;
-using E_commerce.Models;
 using E_commerce.Service.Interfaces;
 using E_commerce.Services.Interfaces;
 using E_commerce.Settings;
@@ -39,6 +38,36 @@ namespace E_commerce.Service.Implementations
             _context = context;
             _jwtConfig = jwtConfig.Value;
             _environment = environment;
+        }
+
+        public async Task<GetUsersResponseDto> GetAllUsersAsync()
+        {
+            using var connection = _context.CreateConnection();
+
+            using var multi = await connection.QueryMultipleAsync(
+                StoredProcedures.GetAllUsers,
+                commandType: CommandType.StoredProcedure);
+
+            var response = await multi.ReadSingleAsync<SpResponseDto>();
+
+            if (response.ResponseCode != 200)
+            {
+                return new GetUsersResponseDto
+                {
+                    ResponseCode = response.ResponseCode,
+                    ResponseMessage = response.ResponseMessage,
+                    Users = new List<UserListItemDto>()
+                };
+            }
+
+            var users = (await multi.ReadAsync<UserListItemDto>()).ToList();
+
+            return new GetUsersResponseDto
+            {
+                ResponseCode = response.ResponseCode,
+                ResponseMessage = response.ResponseMessage,
+                Users = users
+            };
         }
 
         public async Task<LoginResponseDto> LoginAsync(LoginRequestDto request)
@@ -199,6 +228,41 @@ namespace E_commerce.Service.Implementations
                 AccessToken = accessToken,
                 RefreshToken = refreshToken
             };
+        }
+
+        public async Task<SpResponseDto> SoftDeleteUserAsync(int userId, int currentUserId)
+        {
+            if (userId == currentUserId)
+            {
+                return new SpResponseDto
+                {
+                    ResponseCode = 400,
+                    ResponseMessage = "You cannot delete your own account."
+                };
+            }
+
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryFirstAsync<SpResponseDto>(
+                StoredProcedures.SoftDeleteUser,
+                new
+                {
+                    UserId = userId
+                },
+                commandType: CommandType.StoredProcedure);
+        }
+
+        public async Task<SpResponseDto> RestoreUserAsync(int userId)
+        {
+            using var connection = _context.CreateConnection();
+
+            return await connection.QueryFirstAsync<SpResponseDto>(
+                StoredProcedures.RestoreUser,
+                new
+                {
+                    UserId = userId
+                },
+                commandType: CommandType.StoredProcedure);
         }
     }
 }
