@@ -265,6 +265,9 @@ An Admin user is required to access the Admin Area.
 Admin endpoints are protected with:
 
 ```csharp
+[Area("Admin")]
+```
+```csharp
 [Authorize(Roles = "Admin")]
 ```
 
@@ -273,22 +276,71 @@ Admin endpoints are protected with:
 ```text
 E-Commerce/
 │
-├── Areas/
-│   └── Admin/
-│       ├── Controllers/
-│       └── Views/
+├── Database/
+│   │
+│   ├── Scripts/
+│   │   ├── 001_initialScript.sql
+│   │   ├── 002_AddProductsAndCategories.sql
+│   │   ├── 003_AddCart.sql
+│   │   ├── 004_AddOrders.sql
+│   │   └── 005_SeedAdmin.sql
+│   │
+│   └── StoredProcedures/
+│       ├── Cart/
+│       ├── Categories/
+│       ├── Dashboard/
+│       ├── Orders/
+│       ├── Products/
+│       ├── Profile/
+│       ├── RefreshToken/
+│       └── Users/
 │
-├── Controllers/
-├── DTOs/
-├── Services/
-├── ViewModels/
-├── Views/
-├── wwwroot/
-│   ├── css/
-│   ├── js/
-│   └── uploads/
-│
-└── SQL Scripts/
+└── E-Commerce/
+    │
+    ├── Areas/
+    │   └── Admin/
+    │       ├── Controllers/
+    │       └── Views/
+    │
+    ├── Constants/
+    ├── Controllers/
+    ├── CustomAttributes/
+    ├── DTOs/
+    ├── Data/
+    ├── Helpers/
+    ├── Middlewares/
+    ├── Models/
+    ├── Properties/
+    ├── Services/
+    ├── Settings/
+    ├── ViewModels/
+    ├── Views/
+    │
+    └── wwwroot/
+        ├── css/
+        │   ├── auth.css
+        │   ├── cart.css
+        │   ├── checkout.css
+        │   ├── profile.css
+        │   └── site.css
+        │
+        ├── icons/
+        │
+        ├── js/
+        │   ├── admin/
+        │   │   ├── categories.js
+        │   │   ├── products.js
+        │   │   └── users.js
+        │   │
+        │   ├── cart.js
+        │   ├── checkout.js
+        │   ├── orders.js
+        │   ├── product-search.js
+        │   ├── profile.js
+        │   └── site.js
+        │
+        ├── lib/
+        └── uploads/
 ```
 
 ## Project Status
