@@ -1,0 +1,141 @@
+﻿@model E_commerce.DTOs.Response.GetCategoriesResponseDto
+
+@{
+    ViewData["Title"] = "Categories";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2>Categories</h2>
+
+    <a asp-action="Create" class="btn btn-primary">
+        Add Category
+    </a>
+</div>
+
+@if (!Model.Categories.Any())
+{
+    <div class="alert alert-info">
+        No categories found.
+    </div>
+}
+else
+{
+    <table class="table table-bordered table-hover align-middle">
+
+        <thead class="table-light">
+            <tr>
+                <th>Name</th>
+                <th>Status</th>
+                <th class="text-center" style="width:220px;">Actions</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            @foreach (var category in Model.Categories)
+            {
+                <tr data-id="@category.Id">
+
+                    <td class="category-name">
+                        @category.Name
+                    </td>
+
+                    <td class="category-status">
+                        @if (category.IsDeleted)
+                        {
+                            <span class="badge bg-danger">Deleted</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-success">Active</span>
+                        }
+                    </td>
+
+                    <td class="text-center">
+
+                        @if (!category.IsDeleted)
+                        {
+                            <button class="btn btn-warning btn-sm edit-btn"
+                                    data-id="@category.Id"
+                                    data-name="@category.Name">
+                                Edit
+                            </button>
+
+                            <button class="btn btn-danger btn-sm delete-btn"
+                                    data-id="@category.Id">
+                                Delete
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success btn-sm restore-btn"
+                                    data-id="@category.Id">
+                                Restore
+                            </button>
+                        }
+
+                    </td>
+
+                </tr>
+            }
+
+        </tbody>
+
+    </table>
+}
+
+<div class="modal fade" id="editModal" tabindex="-1">
+
+    <div class="modal-dialog">
+
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    Edit Category
+                </h5>
+
+                <button class="btn-close" data-bs-dismiss="modal">
+                </button>
+            </div>
+
+            <div class="modal-body">
+
+                @Html.AntiForgeryToken()
+
+                <input type="hidden" id="categoryId" />
+
+                <div class="mb-3">
+
+                    <label class="form-label">
+                        Name
+                    </label>
+
+                    <input type="text" id="categoryName" class="form-control" />
+
+                </div>
+
+            </div>
+
+            <div class="modal-footer">
+
+                <button class="btn btn-secondary" data-bs-dismiss="modal">
+                    Cancel
+                </button>
+
+                <button id="saveCategoryBtn" class="btn btn-primary">
+                    Save
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+@section Scripts
+{
+    <script src="~/js/admin/categories.js" asp-append-version="true"></script>
+}

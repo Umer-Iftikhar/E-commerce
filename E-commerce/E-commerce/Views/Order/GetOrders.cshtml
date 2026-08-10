@@ -1,0 +1,118 @@
+﻿@using E_commerce.Helpers.Extensions
+@model E_commerce.ViewModels.OrdersViewModel
+
+@{
+    ViewData["Title"] = "My Orders";
+}
+
+<div class="container py-4">
+
+    <h2 class="mb-4">
+        <img src="~/icons/bag-check.svg" class="section-icon" alt="" />
+        My Orders
+    </h2>
+
+    @if (!Model.Orders.Any())
+    {
+        <div class="card shadow-sm">
+
+            <div class="card-body text-center py-5">
+
+                <img src="~/icons/bag-check.svg" class="mb-3" width="64" alt="" />
+
+                <h4>No orders yet</h4>
+
+                <p class="text-muted mb-4">
+                    You haven't placed any orders yet.
+                </p>
+
+                <a asp-controller="Product" asp-action="Index" class="btn btn-success">
+
+                    Continue Shopping
+
+                </a>
+
+            </div>
+
+        </div>
+    }
+    else
+    {
+        <div class="card shadow-sm">
+
+            <div class="table-responsive">
+
+                <table class="table table-hover align-middle mb-0">
+
+                    <thead class="table-light">
+                        <tr>
+                            <th>Order #</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+
+                        @foreach (var order in Model.Orders)
+                        {
+                            <tr class="order-row" data-order-id="@order.OrderId">
+
+                                <td>
+                                    #@order.OrderId
+                                </td>
+
+                                <td>
+                                    @order.CreatedAt.ToString("dd MMM yyyy")
+                                </td>
+
+                                <td>
+                                    @(((E_commerce.Enums.OrderStatus)order.Status).GetDisplayName())
+                                </td>
+
+                                <td>
+                                    @order.ItemCount
+                                </td>
+
+                                <td class="fw-semibold">
+                                    Rs. @order.Total.ToString("N0")
+                                </td>
+
+                                <td class="text-end">
+
+                                    <button type="button" class="btn btn-outline-success btn-sm btn-order-details" data-order-id="@order.OrderId">
+
+                                        View Details
+
+                                    </button>
+
+                                </td>
+
+                            </tr>
+
+                            <tr id="order-details-row-@order.OrderId" class="d-none">
+                                <td colspan="6" class="p-0">
+
+                                    <div id="order-details-@order.OrderId" class="p-4 border-top bg-light">
+                                    </div>
+
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script src="~/js/orders.js"></script>
+}

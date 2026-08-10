@@ -1,0 +1,56 @@
+﻿@model E_commerce.ViewModels.ProductIndexViewModel
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+<div class="container py-5">
+
+    <h2 class="mb-4">Products</h2>
+
+    <form id="searchForm">
+
+    <div class="row mb-4">
+
+        <div class="col-md-6">
+            <input type="text"
+                   id="searchTerm"
+                   class="form-control"
+                   placeholder="Search products..." />
+        </div>
+
+        <div class="col-md-4">
+            <select id="categoryId" class="form-select">
+                <option value="">All Categories</option>
+
+                @foreach (var category in Model.Categories)
+                {
+                    <option value="@category.Id">@category.Name</option>
+                }
+            </select>
+        </div>
+
+        <div class="col-md-3">
+            <input asp-for="CreatedDate" class="form-control" type="date" min="2025-12-01" max="@DateTime.Today.ToString("yyyy-MM-dd")"/>
+            <span asp-validation-for="CreatedDate" class="text-danger"></span>
+        </div>
+
+        <div class="col-md-2">
+            <button id="btnSearch" type="submit" class="btn btn-primary w-100 d-flex align-items-center justify-content-center gap-2">
+                <img src="~/icons/search.svg" alt="" style="width:18px;height:18px;">
+            </button>
+        </div>
+
+    </div>
+
+    </form>
+
+    <div id="productContainer" class="row g-4">
+        <partial name="_ProductList" model="Model.Products" />
+    </div>
+
+</div>
+
+@section Scripts {
+    <script src="~/js/product-search.js"></script>
+}

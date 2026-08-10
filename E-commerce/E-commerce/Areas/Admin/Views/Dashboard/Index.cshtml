@@ -1,0 +1,83 @@
+﻿@model E_commerce.DTOs.Response.GetDashboardStatsResponseDto
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<h2 class="mb-4">Dashboard</h2>
+
+<div class="row g-4 mb-4">
+
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Products</h6>
+                <h2>@Model.Stats.TotalProducts</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Users</h6>
+                <h2>@Model.Stats.TotalUsers</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card text-center shadow-sm">
+            <div class="card-body">
+                <h6 class="text-muted">Orders</h6>
+                <h2>@Model.Stats.TotalOrders</h2>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<div class="card shadow-sm">
+
+    <div class="card-header">
+        <h5 class="mb-0">Low Stock Products</h5>
+    </div>
+
+    <div class="card-body p-0">
+
+        @if (Model.LowStockProducts.Any())
+        {
+            <table class="table table-striped table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th class="text-end">Stock</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var product in Model.LowStockProducts)
+                    {
+                        <tr>
+                            <td>@product.Name</td>
+                            <td class="text-end">
+                                <span class="badge bg-danger">
+                                    @product.Stock
+                                </span>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+
+            </table>
+        }
+        else
+        {
+            <div class="p-4 text-center text-muted">
+                No low stock products.
+            </div>
+        }
+
+    </div>
+
+</div>

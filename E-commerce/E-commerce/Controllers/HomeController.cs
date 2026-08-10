@@ -1,32 +1,43 @@
-using E_commerce.Models;
-using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+﻿using E_commerce.Service.Interfaces;
+using E_commerce.ViewModels;
+using Microsoft.AspNetCore.Authorization;
+//using Microsoft.AspNetCore.Mvc;
 
-namespace E_commerce.Controllers
-{
-    public class HomeController : Controller
-    {
-        private readonly ILogger<HomeController> _logger;
+//namespace E_commerce.Controllers
+//{
+//    public class HomeController : Controller
+//    {
+//        private readonly IProductService _productService;
 
-        public HomeController(ILogger<HomeController> logger)
-        {
-            _logger = logger;
-        }
+//        public HomeController(IProductService productService)
+//        {
+//            _productService = productService;
+//        }
 
-        public IActionResult Index()
-        {
-            return View();
-        }
+//        [HttpGet]
+//        public async Task<IActionResult> Index()
+//        {
+//            var productsResponse = await _productService.GetProductsAsync(null, null, null);
+//            if (productsResponse.ResponseCode != 200)
+//            {
+//                return View("Error");
+//            }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
+//            //var categoriesResponse = await _productService.GetAllCategoriesAsync();
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error()
-        {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
-    }
-}
+//            if (categoriesResponse.ResponseCode != 200)
+//            {
+//                return View("Error");
+//            }
+
+//            //var viewModel = new HomeViewModel
+//            //{
+//            //    Products = productsResponse.Products,
+//            //    Categories = categoriesResponse.Categories
+//            //};
+
+//            //return View(viewModel);
+//            return View();
+//        }
+//    }
+//}

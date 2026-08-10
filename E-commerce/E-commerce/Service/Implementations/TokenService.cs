@@ -1,0 +1,49 @@
+﻿using E_commerce.Constants;
+using E_commerce.DTOs;
+using E_commerce.Service.Interfaces;
+using E_commerce.Settings;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
+
+namespace E_commerce.Service.Implementations
+{
+    public class TokenService : ITokenService
+    {
+        private readonly JwtConfig _jwtConfig;
+
+        public TokenService(IOptions<JwtConfig> options)
+        {
+            _jwtConfig = options.Value;
+        }
+
+        public string GenerateToken(TokenClaimsDto user)
+        {
+            var claims = new List<Claim>
+            {
+                new Claim(JwtRegisteredClaimNames.Sub, user.Id.ToString()),
+                new Claim(JwtRegisteredClaimNames.Email, user.Email),
+                new Claim(JwtRegisteredClaimNames.Name, user.Name),
+                new Claim(ClaimTypes.Role, user.Role ?? string.Empty),
+                new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
+                new Claim(ClaimConstants.ProfileImagePath, user.ProfileImagePath ?? string.Empty)
+            };
+
+
+            var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.SecretKey));
+
+            var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+
+            var token = new JwtSecurityToken(
+                issuer: _jwtConfig.Issuer,
+                audience: _jwtConfig.Audience,
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(_jwtConfig.ExpiryMinutes),
+                signingCredentials: credentials);
+
+            return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+    }
+}

@@ -1,39 +1,106 @@
-﻿<!DOCTYPE html>
+﻿@using E_commerce.Constants
+@using System.Security.Claims
+@using System.Text.Json
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Antiforgery
+
+@{
+    var profileImage = User.FindFirstValue(ClaimConstants.ProfileImagePath);
+}
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="csrf-token" content="@Antiforgery.GetAndStoreTokens(Context).RequestToken" />
     <title>@ViewData["Title"] - E_commerce</title>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
-    <link rel="stylesheet" href="~/E_commerce.styles.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/auth.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/cart.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/profile.css" asp-append-version="true" />
 </head>
 <body>
     <header>
         <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
             <div class="container-fluid">
                 <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">E_commerce</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
                     <ul class="navbar-nav flex-grow-1">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">
+                                <img src="~/icons/house-door-fill.svg" alt="" style="width:18px;height:18px;">
+                                <span>Home</span>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link text-dark" asp-area="" asp-controller="Product" asp-action="Index">
+                                <img src="~/icons/grid.svg" alt="" style="width:18px;height:18px;">
+                                <span>Products</span>
+                            </a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <ul class="navbar-nav">
+                            @if (User.Identity?.IsAuthenticated == true)
+                            {
+                            <li class="nav-item">
+                                <button type="button" id="cartButton" class="btn btn-link nav-link text-dark">
+                                    <img src="~/icons/cart4.svg" alt="Cart" style="width:18px;height:18px;">
+                                </button>
+                            </li>
+                            <li class="nav-item">
+                                <button type="button" id="profileButton" class="btn btn-link nav-link text-dark">
+                                    @if (!string.IsNullOrEmpty(profileImage))
+                                    {
+                                        <img id="navbarProfileImage"
+                                             src="/@profileImage" alt="Profile" style="width:28px;height:28px;border-radius:50%;object-fit:cover;" />
+                                    }
+                                    else
+                                    {
+                                        <img id="navbarProfileImage" src="~/icons/person-circle.svg" alt="Profile" style="width:28px;height:28px;" />
+                                    }
+                                </button>
+                            </li>
+                            }
+                            else
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Auth" asp-action="Login">
+                                    <img src="~/icons/box-arrow-in-right.svg" alt="" style="width:18px;height:18px;">
+                                        Login
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link text-dark" asp-controller="Auth" asp-action="Register">
+                                    <img src="~/icons/person-plus.svg" alt="" style="width:18px;height:18px;">
+                                        Register
+                                    </a>
+                                </li>
+                            }
+                        
+                    </ul>
                 </div>
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
+
+    <div id="cartOverlay" class="d-none"></div>
+    <div id="profileSidebar"class="profile-sidebar"></div>
+
+    <div id="pageContent">
+
+        <div class="container">
+            <main role="main" class="pb-3">
+                @RenderBody()
+            </main>
+        </div>
+
     </div>
 
     <footer class="border-top footer text-muted">
@@ -41,9 +108,52 @@
             &copy; 2026 - E_commerce - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <div class="toast-container position-fixed top-0 end-0 p-4">
+
+        <div id="appToast" class="toast custom-toast" role="alert" aria-live="assertive" aria-atomic="true">
+
+            <div class="toast-header">
+
+                <img id="toastIcon" src="" alt="" class="toast-icon me-2" />
+
+                <strong id="toastTitle" class="me-auto">
+                    Notification
+                </strong>
+
+                <button type="button" class="btn-close" data-bs-dismiss="toast" aria-label="Close"></button>
+
+            </div>
+
+            <div id="toastMessage"class="toast-body"></div>
+
+        </div>
+
+    </div>
+
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script src="~/js/cart.js" asp-append-version="true"></script>
+    <script src="~/js/profile.js" asp-append-version="true"></script>
+
+    @if (TempData["Success"] is string success)
+    {
+        <script>
+                document.addEventListener("DOMContentLoaded", () =>
+                    showToast(@Html.Raw(JsonSerializer.Serialize(success)), "success"));
+        </script>
+    }
+
+    @if (TempData["Error"] is string error)
+    {
+        <script>
+                document.addEventListener("DOMContentLoaded", () =>
+                    showToast(@Html.Raw(JsonSerializer.Serialize(error)), "error"));
+        </script>
+    }
+
     @await RenderSectionAsync("Scripts", required: false)
+    @await RenderSectionAsync("Styles", required: false)
 </body>
 </html>

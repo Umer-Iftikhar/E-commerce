@@ -1,0 +1,144 @@
+﻿#cartOverlay {
+    width: min(1000px, 90vw);
+    min-height: 420px;
+    margin: 20px auto;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 10px 30px rgba(0,0,0,.2);
+    padding: 20px;
+}
+
+
+/* main layout */
+
+.cart-container {
+    display: flex;
+    gap: 20px;
+    align-items: stretch;
+}
+
+
+/* products area */
+
+.cart-products {
+    flex: 1;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding-right: 10px;
+}
+
+.cart-products-row {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 15px;
+}
+
+
+
+/* each product card */
+
+.cart-product {
+    flex: 0 0 180px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background: #fff;
+}
+
+
+/* image */
+
+.cart-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 8px;
+}
+
+
+.cart-image-placeholder {
+    width: 90px;
+    height: 90px;
+    background: #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    font-size: 12px;
+}
+
+
+/* summary */
+
+.cart-summary {
+    width: 220px;
+    flex-shrink: 0;
+    border-left: 1px solid #ddd;
+    padding-left: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+
+    .cart-summary h4,
+    .cart-summary h3 {
+        margin: 0;
+    }
+
+.cart-product h6,
+.cart-product small,
+.cart-product strong {
+    text-align: center;
+}
+
+/* quantity controls */
+
+.quantity-controls {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 10px;
+}
+
+    .quantity-controls button {
+        width: 32px;
+        height: 32px;
+        padding: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+.quantity-value {
+    min-width: 24px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* remove button */
+
+.remove-cart-item {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    margin-top: auto;
+}
+
+    .remove-cart-item .icon {
+        width: 16px;
+        height: 16px;
+    }
+
+/* icons */
+
+.icon {
+    width: 16px;
+    height: 16px;
+}

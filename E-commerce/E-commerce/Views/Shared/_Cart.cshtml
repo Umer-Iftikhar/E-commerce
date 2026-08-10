@@ -1,0 +1,98 @@
+﻿@model E_commerce.DTOs.Response.GetCartResponseDto
+
+<div class="cart-container">
+
+    <div class="cart-products">
+
+        <div class="cart-products-row">
+
+            @if (!Model.Items.Any())
+            {
+                <div class="cart-empty">
+                    <h5>Your cart is empty.</h5>
+                </div>
+            }
+            else
+            {
+                @foreach (var item in Model.Items)
+                {
+                    <div class="cart-product">
+
+                        @if (string.IsNullOrEmpty(item.CoverImagePath))
+                        {
+                            <div class="cart-image-placeholder">
+                                No Image
+                            </div>
+                        }
+                        else
+                        {
+                            <img src="@item.CoverImagePath"
+                                 alt="@item.ProductName"
+                                 class="cart-image" />
+                        }
+
+                        <h6 class="mt-2">@item.ProductName</h6>
+
+                        <small>Price: Rs. @item.Price.ToString("N0")</small>
+
+                        <div class="quantity-controls">
+
+                            <button class="btn btn-outline-secondary decrease-quantity"
+                                    data-cart-item-id="@item.CartItemId">
+                                <img src="~/icons/dash-circle.svg" class="icon" alt="Decrease">
+                            </button>
+
+                            <span class="quantity-value">@item.Quantity</span>
+
+                            <button class="btn btn-outline-secondary increase-quantity"
+                                    data-cart-item-id="@item.CartItemId">
+                                <img src="~/icons/plus-circle.svg" class="icon" alt="Increase">
+                            </button>
+
+                        </div>
+
+                        <strong class ="mt-2">Subtotal: Rs. @item.Subtotal.ToString("N0")</strong>
+
+                        <button type="button"
+                                class="btn btn-outline-danger remove-cart-item mt-3 w-100"
+                                data-cart-item-id="@item.CartItemId">
+
+                            <img src="~/icons/trash3.svg"
+                                 class="icon"
+                                 alt="Remove">
+
+                            Remove
+                        </button>
+
+                    </div>
+                }
+            }
+
+        </div>
+
+    </div>
+
+    <div class="cart-summary">
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h4 class="mb-0">Total</h4>
+
+            <button id="closeCartButton"
+                    type="button"
+                    class="btn btn-sm btn-outline-secondary">
+                ✕
+            </button>
+        </div>
+
+        <h3 class="text-primary">
+            Rs. @Model.Total.ToString("N0")
+        </h3>
+
+        <a asp-controller="Order" asp-action="Checkout" class="btn btn-success w-100 mt-3">
+            <img src="~/icons/bag-check.svg" class="icon" alt="">
+            Checkout
+        </a>
+
+    </div>
+
+</div>
